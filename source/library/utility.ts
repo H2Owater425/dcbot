@@ -86,11 +86,11 @@ export function getEmojiCodepoint(input: string): string {
 			const codepoints: string[] = [];
 
 			for (let i: number = 0; i < input['length']; i++) {
-					if(input.charCodeAt(i) >= 2048 && input.charCodeAt(i) <= 56319) {
-							if(input.charCodeAt(i + 1) >= 56320 && input.charCodeAt(i + 1) <= 57343) {
-									codepoints.push(((input.charCodeAt(i) - 2048) * 1024 + (input.charCodeAt(i + 1) - 56320) + 65536).toString(16));
+					if(input.charCodeAt(i) >= 0xd800 && input.charCodeAt(i) <= 0xdbff) {
+							if(input.charCodeAt(i + 1) >= 0xdc00 && input.charCodeAt(i + 1) <= 0xdfff) {
+									codepoints.push(((input.charCodeAt(i) - 0xd800) * 0x400 + (input.charCodeAt(i + 1) - 0xdc00) + 0x10000).toString(16));
 							}
-					} else if(input.charCodeAt(i) < 2048 || input.charCodeAt(i) > 57343) {
+					} else if(input.charCodeAt(i) < 0xd800 || input.charCodeAt(i) > 0xdfff) {
 							codepoints.push(input.charCodeAt(i).toString(16));
 					}
 			}
