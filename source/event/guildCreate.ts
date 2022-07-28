@@ -24,7 +24,7 @@ export default new Event('guildCreate', function (guild: Guild): void {
 	}, {
 		guildId: guild['id'],
 		key: settingIndexes['hotPostChannelId'],
-		value: guild['publicUpdatesChannelID']
+		value: typeof(guild['publicUpdatesChannelID']) === 'string' ? guild['publicUpdatesChannelID'] : '' 
 	}, {
 		guildId: guild['id'],
 		key: settingIndexes['hotPostBannedChannelIds'],
