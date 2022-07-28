@@ -2,7 +2,7 @@ import { prisma } from '@library/database';
 import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { HotPost, Setting } from '@prisma/client';
-import { EmbedField, EmbedOptions, Message, PartialEmoji, PossiblyUncachedMessage, TextChannel } from 'eris';
+import { EmbedField, EmbedOptions, Message, PartialEmoji, PossiblyUncachedMessage } from 'eris';
 import { client } from '../application';
 import { settingIndexes } from '@library/constant';
 
@@ -49,7 +49,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 										const hotPostEmbed: EmbedOptions = {
 											color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
 											author: {
-												name: message['author']['username'],
+												name: message['author']['username'] + '#' + message['author']['discriminator'],
 												icon_url: message['author'].dynamicAvatarURL('png')
 											},
 											description: message['content'],

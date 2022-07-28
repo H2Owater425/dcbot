@@ -3,11 +3,7 @@ import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { EventHandler } from '@library/type';
 
-function getPaths(path: string, paths?: string[]): string[] {
-	if(!Array.isArray(paths)) {
-		paths = [];
-	}
-
+function getPaths(path: string, paths: string[] = []): string[] {
 	const _paths: string[] = readdirSync(path, 'utf8');
 
 	for(let i: number = 0; i < _paths['length']; i++) {
@@ -40,10 +36,10 @@ export class Command {
 	public generator: CommandGenerator;
 	public options: CommandOptions & { subcommands?: Command[] };
 
-	constructor(label: Command['label'], generator: Command['generator'], options?: Command['options']) {
+	constructor(label: Command['label'], generator: Command['generator'], options: Command['options'] = {}) {
 		this['label'] = label;
 		this['generator'] = generator;
-		this['options'] = typeof(options) === 'object' ? options : {};
+		this['options'] = options;
 	}
 
 	public registerSubcommand(command: _Command): void {
