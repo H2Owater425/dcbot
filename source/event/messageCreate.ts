@@ -9,7 +9,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 
 	if(message['content'].charCodeAt(0) === process['env']['PREFIX'].charCodeAt(0) && !client['commandNames'].has(emoticonArguments[0])) {
 		const emoticonEmbed: EmbedOptions = {
-			color: Number.parseInt(process['env']['EMBED_COLOR']),
+			color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
 			footer: { text: message['author']['username'] + '#' + message['author']['discriminator'] }
 		};
 
