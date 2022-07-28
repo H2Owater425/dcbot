@@ -22,7 +22,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 					}
 				})
 				.catch(logger.error);
-			} else if(/^(\p{Emoji}|\uFE0F|‍)+$/u.test(emoticonArguments[0])) {
+			} else if(/^(\p{Emoji}|\uFE0F|\u200d)+$/u.test(emoticonArguments[0])) {
 				client.createMessage(message['channel']['id'], {
 					embed: Object.assign(emoticonEmbed, { image: { url: 'https://cdn.h2owr.xyz/images/twemoji/png/100x100/' + getEmojiCodepoint(emoticonArguments[0]) + '.png' } }),
 					messageReference: {
