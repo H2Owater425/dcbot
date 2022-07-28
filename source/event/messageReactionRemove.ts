@@ -37,6 +37,9 @@ export default new Event('messageReactionRemove', function (message: PossiblyUnc
 									return;
 								})
 								.catch(logger.error);
+							} else {
+								message.edit({ content: '🌟 **' + message['reactions']['⭐']['count'] + '** <#' + message['channel']['id'] + '>' })
+								.catch(logger.error);
 							}
 							
 							return;
