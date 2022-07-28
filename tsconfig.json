@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"target": "ES6",
+		"module": "commonjs",
+		"outDir": "distribution",
+		"strict": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"baseUrl": ".",
+		"paths": { "@library/*": ["source/library/*", "distribution/library/*"] },
+		"experimentalDecorators": true,
+		"skipLibCheck": false,
+		"forceConsistentCasingInFileNames": true,
+		"removeComments": true
+	},
+	"exclude": ["node_modules", "distribution/**/*"],
+	"include": ["source/**/*"]
+}

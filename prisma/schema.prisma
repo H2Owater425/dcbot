@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Emoticon {
+  id            Int            @db.UnsignedInt
+  guildId       String         @map("guild_id") @db.VarChar(20)
+  name          String         @db.VarChar(128)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.DateTime(0)
+  emoticonAlias EmoticonAlia[]
+
+  @@id([id, guildId])
+  @@map("emoticon")
+}
+
+model EmoticonAlia {
+  emoticonId      Int      @map("emoticon_id") @db.UnsignedInt
+  emoticonGuildId String   @map("emoticon_guild_id") @db.VarChar(20)
+  name            String   @db.VarChar(128)
+  emoticon        Emoticon @relation(fields: [emoticonId, emoticonGuildId], references: [id, guildId], onDelete: Cascade, onUpdate: Cascade, map: "FOREIGN KEY (emoticon_alia.emoticon_id, emoticon.id)")
+
+  @@id([emoticonId, emoticonGuildId])
+  @@unique([emoticonGuildId, name], map: "UNIQUE INDEX (emoticon_guild_id, name)")
+  @@map("emoticon_alia")
+}
+
+model Gallery {
+  channelId   String   @map("channel_id") @db.VarChar(20)
+  guildId     String   @map("guild_id") @db.VarChar(20)
+  title       String   @db.VarChar(100)
+  description String   @db.VarChar(1024)
+  creatorId   String   @map("creator_id") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@id([channelId])
+  @@map("gallery")
+}
+
+model GalleryRequest {
+  messageId    String   @map("message_id") @db.VarChar(20)
+  channelId    String   @map("channel_id") @db.VarChar(20)
+  guildId      String   @map("guild_id") @db.VarChar(20)
+  title        String   @db.VarChar(100)
+  description  String   @db.VarChar(1024)
+  creatorId    String   @map("creator_id") @db.VarChar(20)
+  consentCount Int      @map("consent_count") @db.UnsignedInt
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@id([messageId, channelId])
+  @@map("gallery_request")
+}
+
+model HotPost {
+  originalMessageId   String   @unique(map: "UNIQUE INDEX (original_message_id)") @map("original_message_id") @db.VarChar(20)
+  messageId           String   @unique(map: "UNIQUE INDEX (message_id)") @map("message_id") @db.VarChar(20)
+  guildId             String   @map("guild_id") @db.VarChar(20)
+  recommendationCount Int      @map("recommendation_count") @db.UnsignedInt
+  createdAt           DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@map("hot_post")
+}
+
+model Setting {
+  guildId String @map("guild_id") @db.VarChar(20)
+  key     Int    @db.UnsignedTinyInt
+  value   String @db.VarChar(64)
+
+  @@id([guildId, key])
+  @@map("setting")
+}
