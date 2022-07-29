@@ -95,12 +95,14 @@ export default new Command('!setting', function (message: Message, _arguments: s
 				}
 	
 				switch(_arguments[1]) {
+					case '1':
 					case 'true': {
 						setting['value'] = '1';
 	
 						break;
 					}
 	
+					case '0':
 					case 'false': {
 						setting['value'] = '0';
 	
@@ -154,8 +156,19 @@ export default new Command('!setting', function (message: Message, _arguments: s
 				data: setting
 			})
 			.then(function (): void {
-				if(setting['key'] === SettingIndexes['hotPostChannelId']) {
-					setting['value'] = '<#' + setting['value'] + '>';
+				switch(setting['key']) {
+					case SettingIndexes['hotPostChannelId']: {
+						setting['value'] = '<#' + setting['value'] + '>';
+
+						break;
+					}
+
+					case SettingIndexes['isHotPostEnabled']:
+					case SettingIndexes['isEmojiEnabled']: {
+						setting['value'] = setting['value'] === '1' ? 'true' : 'false';
+
+						break;
+					}
 				}
 	
 				message['channel'].createMessage({
