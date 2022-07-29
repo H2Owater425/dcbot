@@ -80,15 +80,15 @@ export function fetchResponse(url: string, options: Omit<RequestInit, 'headers'>
 }
 
 function getStringUntil(string: string, target: string): string {
-	let targetIndex: number = 0;
-	
-	for(let i: number = 0; i < string['length']; i++) {
-		if(string.slice(0, i).endsWith(target)) {
-			targetIndex = i - target['length'];
-		}
-	}
+	const targetIndex: number = string.indexOf(target);
 
-	return string.slice(0, targetIndex);
+	return string.slice(0, targetIndex !== -1 ? targetIndex : 0);
+}
+
+function getStringFrom(string: string, target: string): string {
+	const targetIndex: number = string.indexOf(target);
+
+	return string.slice(targetIndex !== -1 ? targetIndex + target['length'] : 0);
 }
 
 export function getArcaLiveEmoticons(title: string): Promise<ArcaLiveEmoticon[]> {
@@ -100,9 +100,7 @@ export function getArcaLiveEmoticons(title: string): Promise<ArcaLiveEmoticon[]>
 			let emoticonId: number = NaN;
 
 			for(let i: number = 1; i < splitResponseTexts['length']; i++) {
-				const splitResponseTextMatchs: RegExpMatchArray | null = splitResponseTexts[i].match(/(?<=<div class="title">)[A-z0-9ㄱ-ㅎㅏ-ㅣ가-힣*^!~+\s]+(?=<\/div>)/g);
-				
-				if(splitResponseTextMatchs !== null && title === splitResponseTextMatchs[0]) {
+				if(title === getStringUntil(getStringFrom(splitResponseTexts[i], '<div class="title">'), '</div>')) {
 					emoticonId = Number.parseInt(getStringUntil(splitResponseTexts[i], '?'), 10);
 
 					break;
@@ -112,15 +110,18 @@ export function getArcaLiveEmoticons(title: string): Promise<ArcaLiveEmoticon[]>
 			if(!Number.isNaN(emoticonId)) {
 				fetchResponse('https://arca.live/e/' + emoticonId)
 				.then(function (response: Response): void {
-					const splitResponseTexts: string[] = getStringUntil(response['buffer'].toString('utf-8'), '<div class="included-article-list">').split('<img loading="lazy" class="emoticon" src="');
+					const splitResponseTexts: string[] = getStringUntil(getStringFrom(response['buffer'].toString('utf-8'), '<div class="emoticons-wrapper">'), '<div class="included-article-list">').split('src="');
 					const arcaLiveEmoticons: ArcaLiveEmoticon[] = [];
 
-					
 					for(let i: number = 1; i < splitResponseTexts['length']; i++) {
-						arcaLiveEmoticons.push({
-							sort: String(i),
-							url: 'https:' + getStringUntil(splitResponseTexts[i], '" data-id="')
-						});
+						if(typeof(splitResponseTexts[i]) === 'string') {
+							const url: string = getStringUntil(splitResponseTexts[i], '"');
+							
+							arcaLiveEmoticons.push({
+								sort: String(i),
+								url: 'https:' + (url.endsWith('.mp4') ? url + '.gif' : url)
+							});
+						}
 					}
 
 					resolve(arcaLiveEmoticons);
@@ -141,14 +142,12 @@ export function getDcinsideEmoticons(title: string): Promise<DcinsideEmoticon[]>
 	return new Promise<DcinsideEmoticon[]>(function (resolve: ResolveFunction<DcinsideEmoticon[]>, reject: RejectFunction): void {
 		fetchResponse('https://dccon.dcinside.com/hot/1/title/' + encodeURIComponent(title))
 		.then(function (response: Response): void {
-			const splitResponseTexts: string[] = response['buffer'].toString('utf-8').split('package_idx="');
+			const splitResponseTexts: string[] = getStringUntil(getStringFrom(response['buffer'].toString('utf-8'), '<ul class="dccon_shop_list hotdccon clear"'), '<!-- //인기순 디시콘 -->').split('package_idx="');
 			
 			let packageIndex: number = NaN;
 
 			for(let i: number = 1; i < splitResponseTexts['length']; i++) {
-				const splitResponseTextMatchs: RegExpMatchArray | null = splitResponseTexts[i].match(/(?<=<strong class="dcon_name">)[A-z0-9ㄱ-ㅎㅏ-ㅣ가-힣*^!~+\s]+(?=<\/strong>)/g);
-
-				if(splitResponseTextMatchs !== null && title === splitResponseTextMatchs[0]) {
+				if(title === getStringUntil(getStringFrom(splitResponseTexts[i], '<strong class="dcon_name">'), '</strong>')) {
 					packageIndex = Number.parseInt(getStringUntil(splitResponseTexts[i], '"'), 10);
 
 					break;
