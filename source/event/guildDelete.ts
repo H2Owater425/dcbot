@@ -7,9 +7,12 @@ export default new Event('guildDelete', function (guild: PossiblyUncachedGuild):
 	prisma['setting'].deleteMany({
 		where: { guildId: guild['id'] }
 	})
-	.catch(logger.error);
+	.then(function (): void {
+		logger.info('bye (' + guild['id'] + ')');
 
-	logger.info('bye (' + guild['id'] + ')');
+		return;
+	})
+	.catch(logger.error);
 
 	return;
 });

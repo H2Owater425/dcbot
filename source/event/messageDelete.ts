@@ -33,18 +33,22 @@ export default new Event('messageDelete', function (message: PossiblyUncachedMes
 							client.deleteMessage(setting['value'], hotPost['messageId'])
 							.catch(logger.error);
 						}
+
+						return;
 					})
 					.catch(logger.error);
 				} else {
 					logger.error('Invalid setting (' + message['guildID'] + ')');
 				}
+
+				return;
 			})
 			.catch(logger.error);
 		}
+
+		return;
 	})
 	.catch(logger.error);
-
-	
 
 	return;
 });

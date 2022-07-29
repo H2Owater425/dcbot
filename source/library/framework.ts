@@ -34,20 +34,12 @@ export class Event<K extends keyof ClientEvents> {
 export class Command {
 	public label: string;
 	public generator: CommandGenerator;
-	public options: CommandOptions & { subcommands?: Command[] };
+	public options: CommandOptions;
 
 	constructor(label: Command['label'], generator: Command['generator'], options: Command['options'] = {}) {
 		this['label'] = label;
 		this['generator'] = generator;
 		this['options'] = options;
-	}
-
-	public registerSubcommand(command: _Command): void {
-		if(Array.isArray(this['options']['subcommands'])) {
-			for(let i: number = 0; i < this['options']['subcommands']['length']; i++) {
-				this['options']['subcommands'][i].registerSubcommand(command.registerSubcommand(this['options']['subcommands'][i]['label'], this['options']['subcommands'][i]['generator'], this['options']['subcommands'][i]['options']));
-			}
-		}
 	}
 }
 
@@ -70,7 +62,7 @@ export class Client extends CommandClient {
 			if(commandPaths[i].endsWith(this['currentFileExtension'])) {
 				const command: Command = require(commandPaths[i])['default'];
 
-				command.registerSubcommand(this.registerCommand(command['label'], command['generator'], command['options']));
+				this.registerCommand(command['label'], command['generator'], command['options']);
 
 				this['_commandNames'].add(command['label']);
 

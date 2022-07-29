@@ -24,7 +24,7 @@ export class Logger {
 			case 'warn': {
 				levelColor++;
 			}
-			
+
 			default: {
 				print = process.stdout.write.bind(process.stdout);
 			}

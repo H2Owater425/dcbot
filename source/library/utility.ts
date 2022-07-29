@@ -1,18 +1,17 @@
 import { ClientRequest, IncomingMessage } from 'http';
 import { request } from 'https';
-import { ArcaLiveEmoticon, DcinsideEmoticon, RejectFunction, ResolveFunction, Response } from '@library/type';
+import { RejectFunction, ResolveFunction, Response } from '@library/type';
+import { client } from '../application';
+import { PossiblyUncachedMessage } from 'eris';
+import { ReplyableError } from './error';
 
-export function isValidTitle(title: string, options: { maximumLength?: number; } = {}): boolean {
-	if(typeof(options['maximumLength']) !== 'number') {
-		options['maximumLength'] = Infinity;
-	}
-
-	if(title['length'] <= options['maximumLength']) {
+export function isValidTitle(title: string, maximumLength: number): boolean {
+	if(title['length'] <= maximumLength) {
 		let titleLength: number = 0;
 
 		for(let i: number = 0; i < title['length']; i++) {
 			const currentCharacterCode: number = title.charCodeAt(i);
-			
+
 			if(12593 <= currentCharacterCode && currentCharacterCode <= 55203) {
 				titleLength += 2;
 			} else if(32 <= currentCharacterCode && currentCharacterCode <= 33 || 42 <= currentCharacterCode && currentCharacterCode <= 43 || 48 <= currentCharacterCode && currentCharacterCode <= 57 || 65 <= currentCharacterCode && currentCharacterCode <= 90 || 97 <= currentCharacterCode && currentCharacterCode <= 122) {
@@ -24,7 +23,7 @@ export function isValidTitle(title: string, options: { maximumLength?: number; }
 			}
 		}
 
-		if(1 <= titleLength && titleLength <= (options as Required<typeof options>)['maximumLength']) {
+		if(1 <= titleLength && titleLength <= maximumLength) {
 			return true;
 		}
 	}
@@ -79,127 +78,12 @@ export function fetchResponse(url: string, options: Omit<RequestInit, 'headers'>
 	});
 }
 
-function getStringUntil(string: string, target: string): string {
-	const targetIndex: number = string.indexOf(target);
+export function getStringBetween(target: string, options: {
+	starting?: string;
+	ending?: string;
+} = {}): string {
+	const startingIndex: number = typeof(options['starting']) === 'string' ? target.indexOf(options['starting']) + options['starting']['length'] : 0;
+	const endingIndex: number = typeof(options['ending']) === 'string' ? target.indexOf(options['ending']) : target['length'] - 1;
 
-	return string.slice(0, targetIndex !== -1 ? targetIndex : 0);
-}
-
-function getStringFrom(string: string, target: string): string {
-	const targetIndex: number = string.indexOf(target);
-
-	return string.slice(targetIndex !== -1 ? targetIndex + target['length'] : 0);
-}
-
-export function getArcaLiveEmoticons(title: string): Promise<ArcaLiveEmoticon[]> {
-	return new Promise<ArcaLiveEmoticon[]>(function (resolve: ResolveFunction<ArcaLiveEmoticon[]>, reject: RejectFunction): void {
-		fetchResponse('https://arca.live/e/?target=title&keyword=' + title)
-		.then(function (response: Response): void {
-			const splitResponseTexts: string[] = getStringUntil(getStringFrom(response['buffer'].toString('utf-8'), '<div class="included-article-list">'), '</article>').split('href="/e/');
-
-			let emoticonId: number = NaN;
-
-			for(let i: number = 1; i < splitResponseTexts['length']; i++) {
-				if(title === getStringUntil(getStringFrom(splitResponseTexts[i], '<div class="title">'), '</div>')) {
-					emoticonId = Number.parseInt(getStringUntil(splitResponseTexts[i], '?'), 10);
-
-					break;
-				}
-			}
-
-			if(!Number.isNaN(emoticonId)) {
-				fetchResponse('https://arca.live/e/' + emoticonId)
-				.then(function (response: Response): void {
-					const splitResponseTexts: string[] = getStringUntil(getStringFrom(response['buffer'].toString('utf-8'), '<div class="emoticons-wrapper">'), '<div class="included-article-list">').split('src="');
-					const arcaLiveEmoticons: ArcaLiveEmoticon[] = [];
-
-					for(let i: number = 1; i < splitResponseTexts['length']; i++) {
-						if(typeof(splitResponseTexts[i]) === 'string') {
-							const url: string = getStringUntil(splitResponseTexts[i], '"');
-							
-							arcaLiveEmoticons.push({
-								sort: String(i),
-								url: 'https:' + (url.endsWith('.mp4') ? url + '.gif' : url)
-							});
-						}
-					}
-
-					resolve(arcaLiveEmoticons);
-
-					return;
-				})
-			} else {
-				reject(new Error('Invalid title'));
-			}
-		})
-		.catch(reject);
-
-		return;
-	});
-}
-
-export function getDcinsideEmoticons(title: string): Promise<DcinsideEmoticon[]> {
-	return new Promise<DcinsideEmoticon[]>(function (resolve: ResolveFunction<DcinsideEmoticon[]>, reject: RejectFunction): void {
-		fetchResponse('https://dccon.dcinside.com/hot/1/title/' + encodeURIComponent(title))
-		.then(function (response: Response): void {
-			const splitResponseTexts: string[] = getStringUntil(getStringFrom(response['buffer'].toString('utf-8'), '<ul class="dccon_shop_list hotdccon clear"'), '<!-- //인기순 디시콘 -->').split('package_idx="');
-			
-			let packageIndex: number = NaN;
-
-			for(let i: number = 1; i < splitResponseTexts['length']; i++) {
-				if(title === getStringUntil(getStringFrom(splitResponseTexts[i], '<strong class="dcon_name">'), '</strong>')) {
-					packageIndex = Number.parseInt(getStringUntil(splitResponseTexts[i], '"'), 10);
-
-					break;
-				}
-			}
-
-			if(!Number.isNaN(packageIndex)) {
-				let cookie: string = '';
-
-				if(Array.isArray(response['header']['set-cookie'])) {
-					for(let i: number = 0; i < response['header']['set-cookie']['length']; i++) {
-						if(response['header']['set-cookie'][i].startsWith('PHPSESSID=') || response['header']['set-cookie'][i].startsWith('ci_c=')) {
-							cookie += response['header']['set-cookie'][i];
-						}
-					}
-				}
-
-				fetchResponse('https://dccon.dcinside.com/index/package_detail', {
-					method: 'POST',
-					headers: {
-						Cookie: cookie,
-						'Content-Type': 'application/x-www-form-urlencoded',
-						'X-Requested-With': 'XMLHttpRequest'
-					},
-					body: 'package_idx=' + packageIndex
-				})
-				.then(function (response: Response): void {
-					const responseJson: Record<string, any> = JSON.parse(response['buffer'].toString('utf-8'));
-					const dcinsideEmoticons: DcinsideEmoticon[] = [];
-					
-					for(let i: number = 0; i < responseJson['info']['icon_cnt']; i++) {
-						dcinsideEmoticons.push({
-							sort: responseJson['detail'][i]['sort'],
-							title: responseJson['detail'][i]['title'],
-							path: responseJson['detail'][i]['path'],
-							extension: responseJson['detail'][i]['ext']
-						});
-					}
-
-					resolve(dcinsideEmoticons);
-
-					return;
-				})
-				.catch(reject);
-			} else {
-				reject(new Error('Invalid title'));
-			}
-
-			return;
-		})
-		.catch(reject);
-
-		return;
-	});
+	return target.slice(startingIndex !== -1 ? startingIndex : 0, endingIndex !== -1 ? endingIndex : target['length'] - 1);
 }

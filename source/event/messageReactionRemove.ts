@@ -33,7 +33,7 @@ export default new Event('messageReactionRemove', function (message: PossiblyUnc
 								.then(function (): void {
 									client.deleteMessage(settings[1]['value']/* hotPostChannelId */, hotPost['messageId'])
 									.catch(logger.error);
-									
+
 									return;
 								})
 								.catch(logger.error);
@@ -41,7 +41,7 @@ export default new Event('messageReactionRemove', function (message: PossiblyUnc
 								client.editMessage(settings[1]['value'], hotPost['messageId'], { content: '🌟 **' + message['reactions']['⭐']['count'] + '** <#' + message['channel']['id'] + '>' })
 								.catch(logger.error);
 							}
-							
+
 							return;
 						})
 						.catch(logger.error);
@@ -53,7 +53,11 @@ export default new Event('messageReactionRemove', function (message: PossiblyUnc
 				})
 				.catch(logger.error);
 			}
+
+			return;
 		})
 		.catch(logger.error);
 	}
+
+	return;
 });

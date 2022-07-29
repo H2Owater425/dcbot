@@ -33,7 +33,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 										})
 										.then(function (hotPost: Pick<HotPost, 'messageId'> | null): void {
 											const hotPostContent: string = '🌟 **' + message['reactions']['⭐']['count'] + '** <#' + message['channel']['id'] + '>';
-				
+
 											if(hotPost !== null) {
 												prisma['hotPost'].update({
 													select: null,
@@ -43,7 +43,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 												.then(function (): void {
 													client.editMessage(settings[1]['value']/* hotPostChannelId */, hotPost['messageId'], { content: hotPostContent })
 													.catch(logger.error);
-				
+
 													return;
 												})
 												.catch(logger.error);
@@ -63,33 +63,31 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													footer: { text: message['id'] },
 													timestamp: new Date(message['createdAt'])
 												};
-				
+
 												if(message['attachments']['length'] !== 0) {
 													let fileList: string = '';
 													let i: number = 0;
-													
+
 													if(typeof(message['attachments'][i]['filename']) === 'string' && /^(jp|pn)g|gifv?$/i.test(message['attachments'][i]['filename'].split('.').pop() as string)) {
 														hotPostEmbed['image'] = message['attachments'][i];
-				
+
 														i++;
 													}
-				
+
 													for(; i < message['attachments']['length']; i++) {
 														const splitAttachementFilenames: string[] = message['attachments'][i]['filename'].split('.');
-				
 														const [attachmentExtension, attachmentName]: string[] = [splitAttachementFilenames['length'] !== 1 ? '.' + splitAttachementFilenames.pop() : '', splitAttachementFilenames.join('.')];
-				
 														const element: string = '[' + (attachmentName['length'] + attachmentExtension['length'] <= 15 ? attachmentName + attachmentExtension : attachmentName.slice(0, 14 - attachmentExtension['length'] - 7) + '...' + attachmentName.slice(-4) + attachmentExtension) + '](' + message['attachments'][i]['url'] + ')\n';
-				
+
 														if(fileList['length'] + element['length'] <= 1018) {
 															fileList += element;
 														} else {
 															fileList += '*더...*';
-															
+
 															break;
 														}
 													}
-				
+
 													if(fileList['length'] !== 0) {
 														(hotPostEmbed['fields'] as EmbedField[]).push({
 															name: '첨부파일',
@@ -98,7 +96,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 														});
 													}
 												}
-			
+
 												client.createMessage(settings[1]['value']/* hotPostChannelId */, {
 													content: hotPostContent,
 													embed: hotPostEmbed
@@ -116,17 +114,17 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													.catch(function (error: any): void {
 														hotPostMessage.delete()
 														.catch(logger.error);
-				
+
 														logger.error(error);
-			
+
 														return;
 													});
-			
+
 													return;
 												})
 												.catch(logger.error);
 											}
-				
+
 											return;
 										})
 										.catch(logger.error);
@@ -135,12 +133,12 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 									logger.error('Invalid setting (' + message['guildID'] + ')');
 								}
 							}
-			
+
 							return;
 						})
 						.catch(logger.error);
 					}
-		
+
 					return;
 				})
 				.catch(logger.error);
@@ -167,14 +165,10 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 
 								if(isSameUser) {
 									message.delete()
-									.then(function (): void {
-										referencedMessage.delete()
-										.catch(logger.error);
-
-										return;
-									})
 									.catch(logger.error);
 								}
+
+								return;
 							})
 							.catch(logger.error);
 

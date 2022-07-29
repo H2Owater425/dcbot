@@ -32,10 +32,11 @@ export default new Event('guildCreate', function (guild: Guild): void {
 	}] })
 	.then(function (): void {
 		// TODO: Add welcome message
+		logger.info('hi (' + guild['id'] + ')');
+
+		return;
 	})
 	.catch(logger.error);
-
-	logger.info('hi (' + guild['id'] + ')');
 
 	return;
 });

@@ -1,13 +1,11 @@
-class ChannelError extends Error {
-	public channelId: string;
+import { PossiblyUncachedMessage } from "eris";
 
-	constructor(channelId: string, message?: string) {
+export class ReplyableError extends Error {
+	public discordMessage: PossiblyUncachedMessage;
+
+	constructor(discordMessage: ReplyableError['discordMessage'], message?: string) {
 		super(message);
 
-		this['channelId'] = channelId;
+		this['discordMessage'] = discordMessage;
 	}
 }
-
-export class InvalidUsage extends ChannelError {};
-
-export class InternalError extends ChannelError {};
