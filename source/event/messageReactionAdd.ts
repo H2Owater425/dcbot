@@ -167,6 +167,12 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 
 								if(isSameUser) {
 									message.delete()
+									.then(function (): void {
+										referencedMessage.delete()
+										.catch(logger.error);
+
+										return;
+									})
 									.catch(logger.error);
 								}
 							})
