@@ -1,9 +1,9 @@
 import { Event } from '@library/framework';
 import { EmbedOptions, Message, PossiblyUncachedTextableChannel } from 'eris';
 import { client } from '../application';
-import { fetchResponse, getDcinsideEmoticon, isValidTitle } from '@library/utility';
+import { fetchResponse, getArcaLiveEmoticons, getDcinsideEmoticons, isValidTitle } from '@library/utility';
 import logger from '@library/logger';
-import { DcinsideEmoticon, Response } from '@library/type';
+import { ArcaLiveEmoticon, DcinsideEmoticon, RejectFunction, ResolveFunction, Response } from '@library/type';
 import { parse } from 'twemoji-parser';
 
 export default new Event('messageCreate', function (message: Message<PossiblyUncachedTextableChannel>): void {
@@ -48,44 +48,84 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 			const emoticonImageInformation: string = emoticonArguments.pop() as string;
 			const emoticonTitle: string = emoticonArguments.join(' ');
 
-			if(isValidTitle(emoticonTitle, { maximumLength: 20 }) && isValidTitle(emoticonImageInformation, { maximumLength: 6 })) {
-				getDcinsideEmoticon(emoticonTitle)
-				.then(function (dcinsideEmoticon: DcinsideEmoticon): void {
-					let imageIndex: number = -1;
+			(new Promise<void>(function (resolve: ResolveFunction, reject: RejectFunction): void {
+				if(isValidTitle(emoticonTitle, { maximumLength: 20 }) && isValidTitle(emoticonImageInformation, { maximumLength: 6 })) {
+					getDcinsideEmoticons(emoticonTitle)
+					.then(function (dcinsideEmoticons: DcinsideEmoticon[]): void {
+						let emoticonIndex: number = -1;
+	
+						for(let i: number = 0; i < dcinsideEmoticons['length']; i++) {
+							if(dcinsideEmoticons[i]['sort'] === emoticonImageInformation || dcinsideEmoticons[i]['title'] === emoticonImageInformation) {
+								emoticonIndex = i;
+								
+								break;
+							}
+						}
+	
+						if(emoticonIndex !== -1) {
+							fetchResponse('https://dcimg5.dcinside.com/dccon.php?no=' + dcinsideEmoticons[emoticonIndex]['path'])
+							.then(function (response: Response): void {
+								const fileName: string = 'icon.' + dcinsideEmoticons[emoticonIndex]['extension'];
+	
+								(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'attachment://' + fileName;
+								
+								client.createMessage(message['channel']['id'], {
+									embed: emoticonEmbed,
+									messageReference: {
+										messageID: message['id']
+									}
+								}, [{
+									file: response['buffer'],
+									name: fileName
+								}])
+								.then(function (): void {
+									resolve();
 
-					for(let i: number = 0; i < dcinsideEmoticon['images']['length']; i++) {
-						if(dcinsideEmoticon['images'][i]['sort'] === emoticonImageInformation || dcinsideEmoticon['images'][i]['title'] === emoticonImageInformation) {
-							imageIndex = i;
+									return;
+								})
+								.catch(logger.error);
+							})
+							.catch(reject);
+						} else {
+							reject();
+						}
+					})
+					.catch(reject);
+				} else {
+					reject();
+				}
+			}))
+			.catch(function (): void {
+				getArcaLiveEmoticons(emoticonTitle)
+				.then(function (arcaLiveEmoticons: ArcaLiveEmoticon[]): void {
+					let emoticonIndex: number = -1;
+
+					for(let i: number = 0; i < arcaLiveEmoticons['length']; i++) {
+						if(arcaLiveEmoticons[i]['sort'] === emoticonImageInformation) {
+							emoticonIndex = i;
 							
 							break;
 						}
 					}
 
-					if(imageIndex !== -1) {
-						fetchResponse('https://dcimg5.dcinside.com/dccon.php?no=' + dcinsideEmoticon['images'][imageIndex]['path'], {
-							method: 'GET'
-						})
-						.then(function (response: Response): void {
-							const fileName: string = dcinsideEmoticon['index'] + '_' + imageIndex + '.' + dcinsideEmoticon['images'][imageIndex]['extension'];
+					if(emoticonIndex !== -1) {
+						(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = arcaLiveEmoticons[emoticonIndex]['url'];
 
-							(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'attachment://' + fileName;
-							
-							client.createMessage(message['channel']['id'], {
-								embed: emoticonEmbed,
-								messageReference: {
-									messageID: message['id']
-								}
-							}, [{
-								file: response['buffer'],
-								name: fileName
-							}])
-							.catch(logger.error);
+						client.createMessage(message['channel']['id'], {
+							embed: emoticonEmbed,
+							messageReference: {
+								messageID: message['id']
+							}
 						})
 						.catch(logger.error);
 					}
+
+					return;
 				})
 				.catch(logger.error);
-			}
+
+				return;
+			});
 		}
 	}
 

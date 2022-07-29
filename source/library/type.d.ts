@@ -17,11 +17,9 @@ export type RejectFunction = (reason?: any) => void;
 
 export type EventHandler<K extends keyof ClientEvents> = (..._arguments: ClientEvents[K]) => void;
 
-export interface DcinsideEmoticon {
-	title: string;
-	index: number;
-	images: { sort: string, title: string, path: string, extension: 'png' | 'gif' }[];
-}
+export type ArcaLiveEmoticon = { sort: string, url: string; };
+
+export type DcinsideEmoticon = { sort: string, title: string, path: string, extension: 'png' | 'gif' };
 
 export interface Response {
 	buffer: Buffer;
