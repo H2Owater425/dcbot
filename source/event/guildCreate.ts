@@ -2,32 +2,32 @@ import { prisma } from '@library/database';
 import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { Guild } from 'eris';
-import { settingIndexes } from '@library/constant';
+import { SettingIndexes } from '@library/constant';
 
 export default new Event('guildCreate', function (guild: Guild): void {
 	prisma['setting'].createMany({ data: [{
 		guildId: guild['id'],
-		key: settingIndexes['isEmojiEnabled'],
+		key: SettingIndexes['isEmojiEnabled'],
 		value: '1'
 	}, {
 		guildId: guild['id'],
-		key: settingIndexes['emojiBannedChannelIds'],
+		key: SettingIndexes['emojiBannedChannelIds'],
 		value: ''
 	}, {
 		guildId: guild['id'],
-		key: settingIndexes['isHotPostEnabled'],
+		key: SettingIndexes['isHotPostEnabled'],
 		value: '1'
 	}, {
 		guildId: guild['id'],
-		key: settingIndexes['hotPostCriteriaCount'],
+		key: SettingIndexes['hotPostCriteriaCount'],
 		value: '3'
 	}, {
 		guildId: guild['id'],
-		key: settingIndexes['hotPostChannelId'],
+		key: SettingIndexes['hotPostChannelId'],
 		value: typeof(guild['publicUpdatesChannelID']) === 'string' ? guild['publicUpdatesChannelID'] : '' 
 	}, {
 		guildId: guild['id'],
-		key: settingIndexes['hotPostBannedChannelIds'],
+		key: SettingIndexes['hotPostBannedChannelIds'],
 		value: ''
 	}] })
 	.then(function (): void {

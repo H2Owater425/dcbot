@@ -4,7 +4,7 @@ import logger from '@library/logger';
 import { HotPost, Setting } from '@prisma/client';
 import { EmbedField, EmbedOptions, Message, PartialEmoji, PossiblyUncachedMessage, User } from 'eris';
 import { client } from '../application';
-import { settingIndexes } from '@library/constant';
+import { SettingIndexes } from '@library/constant';
 
 export default new Event('messageReactionAdd', function (message: PossiblyUncachedMessage, emoji: PartialEmoji): void {
 	if(typeof(message['guildID']) === 'string') {
@@ -17,13 +17,13 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 							select: { value: true },
 							where: {
 								guildId: message['guildID'],
-								OR: [{ key: settingIndexes['hotPostCriteriaCount'] }, { key: settingIndexes['hotPostChannelId'] }, { key: settingIndexes['hotPostBannedChannelIds'] }]
+								OR: [{ key: SettingIndexes['isHotPostEnabled'] }, { key: SettingIndexes['hotPostCriteriaCount'] }, { key: SettingIndexes['hotPostChannelId'] }, { key: SettingIndexes['hotPostBannedChannelIds'] }]
 							}
 						})
 						.then(function (settings: Pick<Setting, 'value'>[]): void {
-							if(!settings[2]['value']/* hotPostBannedChannelIds */.split(',').includes(message['channel']['id'])) {
-								if(settings['length'] === 3) {
-									if(message['reactions']['⭐']['count'] >= Number.parseInt(settings[0]['value']/* hotPostCriteriaCount */, 10)) {
+							if(settings[0]['value']/* isEmojiEnabled */ === '1' && !settings[3]['value']/* hotPostBannedChannelIds */.split(',').includes(message['channel']['id'])) {
+								if(settings['length'] === 4) {
+									if(message['reactions']['⭐']['count'] >= Number.parseInt(settings[1]['value']/* hotPostCriteriaCount */, 10)) {
 										prisma['hotPost'].findUnique({
 											select: {
 												messageId: true,
@@ -41,7 +41,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													where: { originalMessageId: message['id'] }
 												})
 												.then(function (): void {
-													client.editMessage(settings[1]['value']/* hotPostChannelId */, hotPost['messageId'], { content: hotPostContent })
+													client.editMessage(settings[2]['value']/* hotPostChannelId */, hotPost['messageId'], { content: hotPostContent })
 													.catch(logger.error);
 
 													return;
@@ -97,7 +97,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													}
 												}
 
-												client.createMessage(settings[1]['value']/* hotPostChannelId */, {
+												client.createMessage(settings[2]['value']/* hotPostChannelId */, {
 													content: hotPostContent,
 													embed: hotPostEmbed
 												})

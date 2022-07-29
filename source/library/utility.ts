@@ -1,9 +1,6 @@
 import { ClientRequest, IncomingMessage } from 'http';
 import { request } from 'https';
 import { RejectFunction, ResolveFunction, Response } from '@library/type';
-import { client } from '../application';
-import { PossiblyUncachedMessage } from 'eris';
-import { ReplyableError } from './error';
 
 export function isValidTitle(title: string, maximumLength: number): boolean {
 	if(title['length'] <= maximumLength) {

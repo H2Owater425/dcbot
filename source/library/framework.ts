@@ -1,4 +1,4 @@
-import { ClientEvents, ClientOptions, Command as _Command, CommandClient, CommandClientOptions, CommandGenerator, CommandOptions } from 'eris';
+import { ClientEvents, ClientOptions, Command as _Command, CommandClient, CommandClientOptions, CommandGenerator, CommandOptions, CommandRequirements, Constants, GenericCheckFunction } from 'eris';
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { EventHandler } from '@library/type';
@@ -34,12 +34,27 @@ export class Event<K extends keyof ClientEvents> {
 export class Command {
 	public label: string;
 	public generator: CommandGenerator;
-	public options: CommandOptions;
+	public options: Omit<CommandOptions, 'requirements'> & { requirements?: Omit<CommandRequirements, 'permissions'> & { permissions?: Partial<Record<keyof Constants["Permissions"], boolean>> | GenericCheckFunction<Record<string, boolean>> } };
+	private subcommands: Command[] = [];
 
 	constructor(label: Command['label'], generator: Command['generator'], options: Command['options'] = {}) {
 		this['label'] = label;
 		this['generator'] = generator;
 		this['options'] = options;
+	}
+
+	public addSubcommand(command: Command): this {
+		this['subcommands'].push(command);
+
+		return this;
+	}
+
+	public registerSubcommand(command: _Command): void {
+		for(let i: number = 0; i < this['subcommands']['length']; i++) {
+			command.registerSubcommand(this['subcommands'][i]['label'], this['subcommands'][i]['generator'], this['subcommands'][i]['options']);
+		}
+
+		return;
 	}
 }
 
@@ -62,7 +77,7 @@ export class Client extends CommandClient {
 			if(commandPaths[i].endsWith(this['currentFileExtension'])) {
 				const command: Command = require(commandPaths[i])['default'];
 
-				this.registerCommand(command['label'], command['generator'], command['options']);
+				command.registerSubcommand(this.registerCommand(command['label'], command['generator'], command['options']));
 
 				this['_commandNames'].add(command['label']);
 
