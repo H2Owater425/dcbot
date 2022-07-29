@@ -97,8 +97,6 @@ export function getEmojiCodepoint(input: string): string {
 
 			} else if(currentCharacterCode < 55296 || currentCharacterCode > 57343) {
 				codepoints.push(currentCharacterCode.toString(16));
-			} else {
-				throw new Error('Invalid character');
 			}
 		}
 
