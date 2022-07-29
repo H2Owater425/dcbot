@@ -95,7 +95,7 @@ export function getArcaLiveEmoticons(title: string): Promise<ArcaLiveEmoticon[]>
 	return new Promise<ArcaLiveEmoticon[]>(function (resolve: ResolveFunction<ArcaLiveEmoticon[]>, reject: RejectFunction): void {
 		fetchResponse('https://arca.live/e/?target=title&keyword=' + title)
 		.then(function (response: Response): void {
-			const splitResponseTexts: string[] = response['buffer'].toString('utf-8').split('href="/e/');
+			const splitResponseTexts: string[] = getStringUntil(getStringFrom(response['buffer'].toString('utf-8'), '<div class="included-article-list">'), '</article>').split('href="/e/');
 
 			let emoticonId: number = NaN;
 
