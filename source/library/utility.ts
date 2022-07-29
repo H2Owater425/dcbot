@@ -79,33 +79,6 @@ export function fetchResponse(url: string, options: Omit<RequestInit, 'headers'>
 	});
 }
 
-export function getEmojiCodepoint(input: string): string {
-	if(input['length'] === 1) {
-		return input.charCodeAt(0).toString();
-	} else if(input['length'] > 1) {
-		const codepoints: string[] = [];
-
-		for (let i: number = 0; i < input['length']; i++) {
-			const currentCharacterCode: number = input.charCodeAt(i);
-
-			if(currentCharacterCode >= 55296 && currentCharacterCode <= 56319) {
-				const nextCharacterCode: number = input.charCodeAt(i + 1);
-
-				if(nextCharacterCode >= 56320 && nextCharacterCode <= 57343) {
-					codepoints.push(((currentCharacterCode - 55296) * 0x400 + (nextCharacterCode - 56320) + 65536).toString(16));
-				}
-
-			} else if(currentCharacterCode < 55296 || currentCharacterCode > 57343) {
-				codepoints.push(currentCharacterCode.toString(16));
-			}
-		}
-
-		return codepoints.join('-');
-	} else {
-		throw new Error('Lack of length');
-	}
-}
-
 export function getDcinsideEmoticon(title: string): Promise<DcinsideEmoticon> {
 	return new Promise<DcinsideEmoticon>(function (resolve: ResolveFunction<DcinsideEmoticon>, reject: RejectFunction): void {
 		fetchResponse('https://dccon.dcinside.com/hot/1/title/' + encodeURIComponent(title))

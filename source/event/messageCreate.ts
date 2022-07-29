@@ -1,9 +1,10 @@
 import { Event } from '@library/framework';
 import { EmbedOptions, Message, PossiblyUncachedTextableChannel } from 'eris';
 import { client } from '../application';
-import { fetchResponse, getDcinsideEmoticon, getEmojiCodepoint, isValidTitle } from '@library/utility';
+import { fetchResponse, getDcinsideEmoticon, isValidTitle } from '@library/utility';
 import logger from '@library/logger';
 import { DcinsideEmoticon, Response } from '@library/type';
+import { parse } from 'twemoji-parser';
 
 export default new Event('messageCreate', function (message: Message<PossiblyUncachedTextableChannel>): void {
 	const emoticonArguments: string[] = message['content'].slice(1).split(' ');
@@ -28,7 +29,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 				.catch(logger.error);
 			} else if(/^(\p{Emoji}|\uFE0F|\u200d)+$/u.test(emoticonArguments[0])) {
 				try {
-					(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'https://cdn.h2owr.xyz/images/twemoji/png/100x100/' + getEmojiCodepoint(emoticonArguments[0]) + '.png';
+					(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = parse(emoticonArguments[0], { buildUrl: function (codepoints: string): string { return 'https://cdn.h2owr.xyz/images/twemoji/png/100x100/' + codepoints + '.png' } })[0]['url'];
 	
 					client.createMessage(message['channel']['id'], {
 						embed: emoticonEmbed,

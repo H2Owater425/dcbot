@@ -19,11 +19,13 @@
     "eris": "^0.17.1",
     "mysql2": "^2.3.3",
     "pako": "^2.0.4",
-    "tsconfig-paths": "^4.0.0"
+    "tsconfig-paths": "^4.0.0",
+    "twemoji-parser": "^14.0.0"
   },
   "devDependencies": {
     "@types/ioredis": "^4.28.10",
     "@types/node": "^17.0.42",
+    "@types/twemoji-parser": "^13.1.1",
     "@types/ws": "^8.5.3",
     "prisma": "^4.1.0",
     "ts-node-dev": "^2.0.0",
