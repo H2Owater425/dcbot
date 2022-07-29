@@ -1,6 +1,6 @@
-import { ClientRequest, IncomingHttpHeaders, IncomingMessage } from "http";
-import { request } from "https";
-import { DcinsideEmoticon, RejectFunction, ResolveFunction, Response } from "@library/type";
+import { ClientRequest, IncomingMessage } from 'http';
+import { request } from 'https';
+import { DcinsideEmoticon, RejectFunction, ResolveFunction, Response } from '@library/type';
 
 export function isValidTitle(title: string, options: { maximumLength?: number; } = {}): boolean {
 	if(typeof(options['maximumLength']) !== 'number') {

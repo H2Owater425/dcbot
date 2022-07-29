@@ -1,9 +1,9 @@
-import { settingIndexes } from "@library/constant";
-import { prisma } from "@library/database";
-import { Event } from "@library/framework";
-import logger from "@library/logger";
-import { HotPost, Setting } from "@prisma/client";
-import { Message, PartialEmoji, PossiblyUncachedMessage } from "eris";
+import { settingIndexes } from '@library/constant';
+import { prisma } from '@library/database';
+import { Event } from '@library/framework';
+import logger from '@library/logger';
+import { HotPost, Setting } from '@prisma/client';
+import { Message, PartialEmoji, PossiblyUncachedMessage } from 'eris';
 import { client } from '../application';
 
 export default new Event('messageReactionRemove', function (message: PossiblyUncachedMessage, emoji: PartialEmoji): void {

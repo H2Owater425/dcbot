@@ -1,10 +1,10 @@
-import { settingIndexes } from "@library/constant";
-import { prisma } from "@library/database";
-import { Event } from "@library/framework";
-import logger from "@library/logger";
-import { RejectFunction, ResolveFunction } from "@library/type";
-import { HotPost, Setting } from "@prisma/client";
-import { PossiblyUncachedMessage } from "eris";
+import { settingIndexes } from '@library/constant';
+import { prisma } from '@library/database';
+import { Event } from '@library/framework';
+import logger from '@library/logger';
+import { RejectFunction, ResolveFunction } from '@library/type';
+import { HotPost, Setting } from '@prisma/client';
+import { PossiblyUncachedMessage } from 'eris';
 import { client } from '../application';
 
 export default new Event('messageDelete', function (message: PossiblyUncachedMessage): void {

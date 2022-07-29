@@ -1,7 +1,7 @@
-import { prisma } from "@library/database";
-import { Event } from "@library/framework";
-import logger from "@library/logger";
-import { PossiblyUncachedGuild } from "eris";
+import { prisma } from '@library/database';
+import { Event } from '@library/framework';
+import logger from '@library/logger';
+import { PossiblyUncachedGuild } from 'eris';
 
 export default new Event('guildDelete', function (guild: PossiblyUncachedGuild): void {
 	prisma['setting'].deleteMany({

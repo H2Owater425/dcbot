@@ -1,8 +1,8 @@
-import { prisma } from "@library/database";
-import { Event } from "@library/framework";
-import logger from "@library/logger";
-import { Guild } from "eris";
-import { settingIndexes } from "@library/constant";
+import { prisma } from '@library/database';
+import { Event } from '@library/framework';
+import logger from '@library/logger';
+import { Guild } from 'eris';
+import { settingIndexes } from '@library/constant';
 
 export default new Event('guildCreate', function (guild: Guild): void {
 	prisma['setting'].createMany({ data: [{
