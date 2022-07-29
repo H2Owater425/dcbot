@@ -13,7 +13,7 @@
     "docker:run": "docker run -d --env-file ./.env -p 3000:80 --name dcbot dcbot"
   },
   "dependencies": {
-    "@prisma/client": "^4.1.0",
+    "@prisma/client": "^4.1.1",
     "bufferutil": "^4.0.6",
     "dotenv": "^16.0.1",
     "eris": "^0.17.1",
