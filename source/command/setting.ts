@@ -166,8 +166,10 @@ export default new Command('!setting', function (message: Message, _arguments: s
 					case SettingIndexes['isHotPostEnabled']:
 					case SettingIndexes['isEmojiEnabled']: {
 						setting['value'] = setting['value'] === '1' ? 'true' : 'false';
+					}
 
-						break;
+					default: {
+						setting['value'] = '**' + setting['value'] + '**';
 					}
 				}
 	
@@ -178,7 +180,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 						thumbnail: {
 							url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
 						},
-						description: _arguments[0] + '이 ' + setting['value'] + '로 변경됨'
+						description: _arguments[0] + '이 ' + setting['value'] + '(으)로 변경됨'
 					}
 				})
 				.catch(logger.error);
@@ -247,7 +249,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 											thumbnail: {
 												url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
 											},
-											description: _arguments[0] + '이 **[' + (channelIds['size'] !== 0 ? '<#' + Array.from(channelIds).join('>, <#') + '>' : '') + ']**로 변경됨'
+											description: _arguments[0] + '이 **[' + (channelIds['size'] !== 0 ? '<#' + Array.from(channelIds).join('>, <#') + '>' : '') + ']**(으)로 변경됨'
 										}
 									})
 									.catch(logger.error);
