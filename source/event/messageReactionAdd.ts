@@ -149,28 +149,22 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 			case '❌': {
 				client.getMessage(message['channel']['id'], message['id'])
 				.then(function (message: Message): void {
-					if(message['author']['id'] === client['user']['id'] && message['messageReference'] !== null && typeof(message['messageReference']['messageID']) === 'string') {
-						client.getMessage(message['messageReference']['channelID'], message['messageReference']['messageID'])
-						.then(function (referencedMessage: Message): void {
-							message.getReaction('❌').then(function (users: User[]): void {
-								let isSameUser: boolean = false;
+					if(message['author']['id'] === client['user']['id'] && typeof(message['referencedMessage']) !== 'undefined' && message['referencedMessage'] !== null) {
+						message.getReaction('❌').then(function (users: User[]): void {
+							let isSameUser: boolean = false;
 
-								for(let i: number = 0; i < users['length']; i++) {
-									if(users[i]['id'] === referencedMessage['author']['id']) {
-										isSameUser = true;
+							for(let i: number = 0; i < users['length']; i++) {
+								if(users[i]['id'] === (message['referencedMessage'] as Message)['author']['id']) {
+									isSameUser = true;
 
-										break;
-									}
+									break;
 								}
+							}
 
-								if(isSameUser) {
-									message.delete()
-									.catch(logger.error);
-								}
-
-								return;
-							})
-							.catch(logger.error);
+							if(isSameUser) {
+								message.delete()
+								.catch(logger.error);
+							}
 
 							return;
 						})
