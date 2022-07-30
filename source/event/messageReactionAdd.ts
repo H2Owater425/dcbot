@@ -3,7 +3,7 @@ import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { HotPost, Setting } from '@prisma/client';
 import { EmbedField, EmbedOptions, Message, PartialEmoji, PossiblyUncachedMessage, User } from 'eris';
-import { client } from '../application';
+import { client } from '@application';
 import { SettingIndexes } from '@library/constant';
 
 export default new Event('messageReactionAdd', function (message: PossiblyUncachedMessage, emoji: PartialEmoji): void {

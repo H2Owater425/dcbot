@@ -1,6 +1,6 @@
 import { Event } from '@library/framework';
 import logger from '@library/logger';
-import { client } from '../application';
+import { client } from '@application';
 
 export default new Event('ready', function (): void {
 	client.editStatus('online', {

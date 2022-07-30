@@ -3,12 +3,13 @@ import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { Guild } from 'eris';
 import { SettingIndexes } from '@library/constant';
+import { client } from '@application';
 
 export default new Event('guildCreate', function (guild: Guild): void {
 	prisma['setting'].createMany({ data: [{
 		guildId: guild['id'],
 		key: SettingIndexes['isEmojiEnabled'],
-		value: '1'
+		value: '0'
 	}, {
 		guildId: guild['id'],
 		key: SettingIndexes['emojiBannedChannelIds'],
@@ -16,7 +17,7 @@ export default new Event('guildCreate', function (guild: Guild): void {
 	}, {
 		guildId: guild['id'],
 		key: SettingIndexes['isHotPostEnabled'],
-		value: '1'
+		value: '0'
 	}, {
 		guildId: guild['id'],
 		key: SettingIndexes['hotPostCriteriaCount'],
@@ -24,7 +25,7 @@ export default new Event('guildCreate', function (guild: Guild): void {
 	}, {
 		guildId: guild['id'],
 		key: SettingIndexes['hotPostChannelId'],
-		value: typeof(guild['publicUpdatesChannelID']) === 'string' ? guild['publicUpdatesChannelID'] : '' 
+		value: '' 
 	}, {
 		guildId: guild['id'],
 		key: SettingIndexes['hotPostBannedChannelIds'],
@@ -33,6 +34,8 @@ export default new Event('guildCreate', function (guild: Guild): void {
 	.then(function (): void {
 		// TODO: Add welcome message
 		logger.info('hi (' + guild['id'] + ')');
+
+		client
 
 		return;
 	})

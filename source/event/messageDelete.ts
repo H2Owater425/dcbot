@@ -4,7 +4,7 @@ import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { HotPost, Setting } from '@prisma/client';
 import { PossiblyUncachedMessage } from 'eris';
-import { client } from '../application';
+import { client } from '@application';
 
 export default new Event('messageDelete', function (message: PossiblyUncachedMessage): void {
 	prisma['hotPost'].findFirst({

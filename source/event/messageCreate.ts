@@ -1,6 +1,6 @@
 import { Event } from '@library/framework';
 import { EmbedOptions, Message, PossiblyUncachedTextableChannel } from 'eris';
-import { client } from '../application';
+import { client } from '@application';
 import logger from '@library/logger';
 import { fetchResponse, getStringBetween, isValidTitle } from '@library/utility';
 import { RejectFunction, ResolveFunction, Response } from '@library/type';

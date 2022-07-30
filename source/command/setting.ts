@@ -4,7 +4,7 @@ import { Command } from "@library/framework";
 import logger from "@library/logger";
 import { Setting } from "@prisma/client";
 import { Message } from "eris";
-import { client } from "../application";
+import { client } from "@application";
 
 export default new Command('!setting', function (message: Message, _arguments: string[]): void {
 	if(_arguments['length'] === 0) {
@@ -143,6 +143,8 @@ export default new Command('!setting', function (message: Message, _arguments: s
 
 			default: {
 				logger.error('Invalid setting key');
+
+				return;
 			}
 		}
 	
@@ -153,7 +155,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 					guildId: message['guildID'] as string,
 					key: setting['key']
 				} },
-				data: setting
+				data: { value: setting['value'] }
 			})
 			.then(function (): void {
 				switch(setting['key']) {
@@ -194,6 +196,8 @@ export default new Command('!setting', function (message: Message, _arguments: s
 	} else {
 		logger.error('Invalid setting arugment length');
 	}
+
+	return;
 }, {
 	aliases: ['지정'],
 	guildOnly: true,
@@ -202,85 +206,93 @@ export default new Command('!setting', function (message: Message, _arguments: s
 .addSubcommand(new Command('add', function (message: Message, _arguments: string[]): void {
 	if(_arguments['length'] === 2) {
 		const plainCommand: string = message['content'].slice(0, message['content']['length'] - _arguments[0]['length'] - _arguments[1]['length'] - 2);
-		const isAddition: boolean = plainCommand.endsWith('add') || plainCommand.endsWith('추가');
-
-		let settingKey: number = -1;
+		const setting: Omit<Setting, 'guildId'> = {
+			key: -1,
+			value: ''
+		};
 	
 		switch(_arguments[0]) {
 			case SettingNames[SettingIndexes['emojiBannedChannelIds']]: {
-				settingKey = SettingIndexes['emojiBannedChannelIds'];
+				setting['key'] = SettingIndexes['emojiBannedChannelIds'];
 			}
 			case SettingNames[SettingIndexes['hotPostBannedChannelIds']]: {
-				if(settingKey === -1) {
-					settingKey = SettingIndexes['hotPostBannedChannelIds'];
+				if(setting['key'] === -1) {
+					setting['key'] = SettingIndexes['hotPostBannedChannelIds'];
 				}
 
-				prisma['setting'].findFirst({
-					select: { value: true },
-					where: {
-						guildId: message['guildID'],
-						key: settingKey
-					}
-				})
-				.then(function (_setting: Pick<Setting, 'value'> | null): void {
-					if(_setting !== null) {
-						const channelIds: Set<string> = new Set<string>(_setting['value'] !== '' ? _setting['value'].split(',') : undefined);
-						const firstArgumantMatch: RegExpMatchArray | null = _arguments[1].match(/^<#[0-9]+>$/);
-			
-						if(firstArgumantMatch !== null && firstArgumantMatch['length'] === 1) {
-							const channelId: string = firstArgumantMatch[0].slice(2, -1);
+				const firstArgumantMatch: RegExpMatchArray | null = _arguments[1].match(/^<#[0-9]+>$/);
 
-							if(typeof(client.getChannel(channelId)) !== 'undefined') {
-								channelIds[isAddition ? 'add' : 'delete'](channelId);
-
-								prisma['setting'].update({
-									select: null,
-									data: { value: Array.from(channelIds).join(',') },
-									where: { guildId_key: {
-										guildId: message['guildID'] as string,
-										key: settingKey
-									} }
-								})
-								.then(function (): void {
-									message['channel'].createMessage({
-										embed: {
-											color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
-											title: 'DCBot | 설정',
-											thumbnail: {
-												url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
-											},
-											description: _arguments[0] + '이 **[' + (channelIds['size'] !== 0 ? '<#' + Array.from(channelIds).join('>, <#') + '>' : '') + ']**(으)로 변경됨'
-										}
-									})
-									.catch(logger.error);
-
-									return;
-								})
-								.catch(logger.error);
-							} else {
-								throw 'Invalid setting value (' + SettingNames[settingKey] + ')';
-							}
-						} else {
-							throw 'Invalid setting value (' + SettingNames[settingKey] + ')';
-						}
-					} else {
-						throw 'Invalid setting (' + message['guildID'] + ')';
-					}
+				if(firstArgumantMatch !== null && firstArgumantMatch['length'] === 1) {
+					const channelId: string = firstArgumantMatch[0].slice(2, -1);
 					
-					return;
-				})
-				.catch(logger.error);
+					if(typeof(client.getChannel(channelId)) !== 'undefined') {
+						setting['value'] = channelId;
+					}
+				}
 
 				break;
 			}
 
 			default: {
 				logger.error('Invalid setting key');
+
+				return;
 			}
+		}
+
+		if(setting['value'] !== '') {
+			prisma['setting'].findFirst({
+				select: { value: true },
+				where: {
+					guildId: message['guildID'],
+					key: setting['key']
+				}
+			})
+			.then(function (_setting: Pick<Setting, 'value'> | null): void {
+				if(_setting !== null) {
+					const channelIds: Set<string> = new Set<string>(_setting['value'] !== '' ? _setting['value'].split(',') : undefined);
+
+					channelIds[plainCommand.endsWith('add') || plainCommand.endsWith('추가') ? 'add' : 'delete'](setting['value']);
+
+					prisma['setting'].update({
+						select: null,
+						data: { value: Array.from(channelIds).join(',') },
+						where: { guildId_key: {
+							guildId: message['guildID'] as string,
+							key: setting['key']
+						} }
+					})
+					.then(function (): void {
+						message['channel'].createMessage({
+							embed: {
+								color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
+								title: 'DCBot | 설정',
+								thumbnail: {
+									url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
+								},
+								description: _arguments[0] + '이 **[' + (channelIds['size'] !== 0 ? '<#' + Array.from(channelIds).join('>, <#') + '>' : '') + ']**(으)로 변경됨'
+							}
+						})
+						.catch(logger.error);
+
+						return;
+					})
+					.catch(logger.error);
+				} else {
+					throw 'Invalid setting (' + message['guildID'] + ')';
+				}
+				
+				return;
+			})
+			.catch(logger.error);
+		} else {
+			logger.error('Invalid setting value (' + SettingNames[setting['key']] + ')');
 		}
 	} else {
 		logger.error('Invalid setting arugment length');
 	}
+
+	return;
 }, {
 	aliases: ['remove', '추가', '제거'],
 	guildOnly: true,

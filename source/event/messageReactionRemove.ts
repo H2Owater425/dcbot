@@ -4,7 +4,7 @@ import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { HotPost, Setting } from '@prisma/client';
 import { Message, PartialEmoji, PossiblyUncachedMessage } from 'eris';
-import { client } from '../application';
+import { client } from '@application';
 
 export default new Event('messageReactionRemove', function (message: PossiblyUncachedMessage, emoji: PartialEmoji): void {
 	if(typeof(message['guildID']) === 'string' && emoji['name'] === '⭐') {
