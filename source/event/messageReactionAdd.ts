@@ -21,7 +21,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 							}
 						})
 						.then(function (settings: Pick<Setting, 'value'>[]): void {
-							if(settings[0]['value']/* isEmojiEnabled */ === '1' && !settings[3]['value']/* hotPostBannedChannelIds */.split(',').includes(message['channel']['id'])) {
+							if(settings[0]['value']/* isEmoticonEnabled */ === '1' && !settings[3]['value']/* hotPostBannedChannelIds */.split(',').includes(message['channel']['id'])) {
 								if(settings['length'] === 4) {
 									if(message['reactions']['⭐']['count'] >= Number.parseInt(settings[1]['value']/* hotPostCriteriaCount */, 10)) {
 										prisma['hotPost'].findUnique({

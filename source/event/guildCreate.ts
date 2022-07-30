@@ -8,11 +8,11 @@ import { client } from '@application';
 export default new Event('guildCreate', function (guild: Guild): void {
 	prisma['setting'].createMany({ data: [{
 		guildId: guild['id'],
-		key: SettingIndexes['isEmojiEnabled'],
+		key: SettingIndexes['isEmoticonEnabled'],
 		value: '0'
 	}, {
 		guildId: guild['id'],
-		key: SettingIndexes['emojiBannedChannelIds'],
+		key: SettingIndexes['emoticonBannedChannelIds'],
 		value: ''
 	}, {
 		guildId: guild['id'],

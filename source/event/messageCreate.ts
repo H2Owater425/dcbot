@@ -23,12 +23,12 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 			select: { value: true },
 			where: {
 				guildId: message['guildID'],
-				OR: [{ key: SettingIndexes['isEmojiEnabled'] }, { key: SettingIndexes['emojiBannedChannelIds'] }]
+				OR: [{ key: SettingIndexes['isEmoticonEnabled'] }, { key: SettingIndexes['emoticonBannedChannelIds'] }]
 			}
 		})
 		.then(function (settings: Pick<Setting, 'value'>[]): void {
 			if(settings['length'] === 2) {
-				if(settings[0]['value']/* isEmojiEnabled */ === '1' && !settings[1]['value']/* emojiBannedChannelIds */.split(',').includes(message['channel']['id'])) {
+				if(settings[0]['value']/* isEmoticonEnabled */ === '1' && !settings[1]['value']/* emoticonBannedChannelIds */.split(',').includes(message['channel']['id'])) {
 					if(emoticonArguments['length'] === 1) {
 						if(/^<a?:[A-z0-9]+:[0-9]+>$/.test(emoticonArguments[0])) {
 							(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'https://cdn.discordapp.com/emojis/' + emoticonArguments[0].split(':')[2].slice(0, -1) + '.' + (emoticonArguments[0].startsWith('<a:') ? 'gif' : 'png');

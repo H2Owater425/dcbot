@@ -17,12 +17,12 @@ export default new Event('messageDelete', function (message: PossiblyUncachedMes
 				select: { value: true },
 				where: {
 					guildId: message['guildID'],
-					OR: [{ key: SettingIndexes['isEmojiEnabled'] }, { key: SettingIndexes['hotPostChannelId'] }]
+					OR: [{ key: SettingIndexes['isEmoticonEnabled'] }, { key: SettingIndexes['hotPostChannelId'] }]
 				}
 			})
 			.then(function (settings: Pick<Setting, 'value'>[]): void {
 				if(settings['length'] === 2) {
-					if(settings[0]['value']/* isEmojiEnabled */ === '1') {
+					if(settings[0]['value']/* isEmoticonEnabled */ === '1') {
 						const isHotPost: boolean = message['id'] === hotPost['messageId'];
 
 						prisma['hotPost'].delete({

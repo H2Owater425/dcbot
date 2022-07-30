@@ -28,7 +28,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 						break;
 					}
 	
-					case SettingIndexes['emojiBannedChannelIds']:
+					case SettingIndexes['emoticonBannedChannelIds']:
 					case SettingIndexes['hotPostBannedChannelIds']: {
 						settingList += '**['
 	
@@ -42,7 +42,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 					}
 	
 					case SettingIndexes['isHotPostEnabled']:
-					case SettingIndexes['isEmojiEnabled']: {
+					case SettingIndexes['isEmoticonEnabled']: {
 						settingList += '**' + (settings[i]['value'] === '1' ? 'true' : 'false') + '**';
 						break;
 					}
@@ -89,9 +89,9 @@ export default new Command('!setting', function (message: Message, _arguments: s
 			case SettingNames[SettingIndexes['isHotPostEnabled']]: {
 				setting['key'] = SettingIndexes['isHotPostEnabled'];
 			}
-			case SettingNames[SettingIndexes['isEmojiEnabled']]: {
+			case SettingNames[SettingIndexes['isEmoticonEnabled']]: {
 				if(setting['key'] === -1) {
-					setting['key'] = SettingIndexes['isEmojiEnabled'];
+					setting['key'] = SettingIndexes['isEmoticonEnabled'];
 				}
 	
 				switch(_arguments[1]) {
@@ -166,7 +166,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 					}
 
 					case SettingIndexes['isHotPostEnabled']:
-					case SettingIndexes['isEmojiEnabled']: {
+					case SettingIndexes['isEmoticonEnabled']: {
 						setting['value'] = setting['value'] === '1' ? 'true' : 'false';
 					}
 
@@ -212,8 +212,8 @@ export default new Command('!setting', function (message: Message, _arguments: s
 		};
 	
 		switch(_arguments[0]) {
-			case SettingNames[SettingIndexes['emojiBannedChannelIds']]: {
-				setting['key'] = SettingIndexes['emojiBannedChannelIds'];
+			case SettingNames[SettingIndexes['emoticonBannedChannelIds']]: {
+				setting['key'] = SettingIndexes['emoticonBannedChannelIds'];
 			}
 			case SettingNames[SettingIndexes['hotPostBannedChannelIds']]: {
 				if(setting['key'] === -1) {
