@@ -161,7 +161,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 								logger.error(error['message']);
 							}
 			
-							fetchResponse('https://arca.live/e/?target=title&keyword=' + emoticonTitle)
+							fetchResponse('https://arca.live/e/?target=title&keyword=' + encodeURIComponent(emoticonTitle))
 							.then(function (response: Response): void {
 								const splitResponseTexts: string[] = getStringBetween(response['buffer'].toString('utf-8'), {
 									starting: '판매순</span>',
@@ -195,7 +195,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 											(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'https:' + getStringBetween(splitResponseTexts[emoticonImageIndex], { ending: '"' });
 			
 											if(((emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] as string).endsWith('mp4')) {
-												(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = ((emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] as string).slice(0, -3) + 'gif';
+												(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] += '.gif';
 											}
 			
 											client.createMessage(message['channel']['id'], {

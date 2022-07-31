@@ -46,10 +46,6 @@ export class Logger {
 	}
 
   public error(..._arguments: unknown[]): void {
-		if(_arguments[0] instanceof Error) {
-			console.log(_arguments[0]['stack']);
-		}
-
 		Logger.log('error', _arguments);
 
 		return;

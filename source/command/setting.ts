@@ -6,7 +6,7 @@ import { Setting } from "@prisma/client";
 import { Message } from "eris";
 import { client } from "@application";
 
-export default new Command('!setting', function (message: Message, _arguments: string[]): void {
+export default new Command('!설정', function (message: Message, _arguments: string[]): void {
 	if(_arguments['length'] === 0) {
 		prisma['setting'].findMany({
 			select: {
@@ -23,7 +23,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 	
 				switch(settings[i]['key']) {
 					case SettingIndexes['hotPostChannelId']: {
-						settingList += settings[i]['value']['length'] !== 0 ? '<#' + settings[i]['value'] + '>' : '**null**';
+						settingList += settings[i]['value']['length'] !== 0 ? '<#' + settings[i]['value'] + '>' : '**없음**';
 	
 						break;
 					}
@@ -74,11 +74,13 @@ export default new Command('!setting', function (message: Message, _arguments: s
 
 	return;
 }, {
-	aliases: ['!설정'],
+	usage: '<**수정**|**set**|**추가**|**add**|**제거**|**remove**>',
+	description: '설정 확인',
+	aliases: ['!setting'],
 	guildOnly: true,
 	requirements: { permissions: { administrator: true } }
 })
-.addSubcommand(new Command('set', function (message: Message, _arguments: string[]): void {
+.addSubcommand(new Command('수정', function (message: Message, _arguments: string[]): void {
 	if(_arguments['length'] === 2) {
 		const setting: Omit<Setting, 'guildId'> = {
 			key: -1,
@@ -179,9 +181,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 					embed: {
 						color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
 						title: 'DCBot | 설정',
-						thumbnail: {
-							url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
-						},
+						thumbnail: { url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png' },
 						description: _arguments[0] + '이 ' + setting['value'] + '(으)로 변경됨'
 					},
 					messageReference: { messageID: message['id'] }
@@ -200,11 +200,13 @@ export default new Command('!setting', function (message: Message, _arguments: s
 
 	return;
 }, {
-	aliases: ['지정'],
+	usage: '<**isEmoticonEnabled**|**isHotPostEnabled**|**hotPostCriteriaCount**|**hotPostChannelId**> <**참**|**true**|**거짓**|**false**|***숫자***>',
+	description: '단일 값 설정 변경',
+	aliases: ['set'],
 	guildOnly: true,
 	requirements: { permissions: { administrator: true } }
 }))
-.addSubcommand(new Command('add', function (message: Message, _arguments: string[]): void {
+.addSubcommand(new Command('추가', function (message: Message, _arguments: string[]): void {
 	if(_arguments['length'] === 2) {
 		const plainCommand: string = message['content'].slice(0, message['content']['length'] - _arguments[0]['length'] - _arguments[1]['length'] - 2);
 		const setting: Omit<Setting, 'guildId'> = {
@@ -268,9 +270,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 							embed: {
 								color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
 								title: 'DCBot | 설정',
-								thumbnail: {
-									url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
-								},
+								thumbnail: { url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png' },
 								description: _arguments[0] + '이 **[' + (channelIds['size'] !== 0 ? '<#' + Array.from(channelIds).join('>, <#') + '>' : '') + ']**(으)로 변경됨'
 							},
 							messageReference: { messageID: message['id'] }
@@ -296,7 +296,9 @@ export default new Command('!setting', function (message: Message, _arguments: s
 
 	return;
 }, {
-	aliases: ['remove', '추가', '제거'],
+	usage: '#<**체널_이름**>',
+	description: '복수 값 설정 추가 및 제거',
+	aliases: ['add', '제거', 'remove'],
 	guildOnly: true,
 	requirements: { permissions: { administrator: true } }
 }));

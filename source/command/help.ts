@@ -5,7 +5,7 @@ import logger from "@library/logger";
 import { getHelpEmbed } from "@library/utility";
 import { Command as _Command, EmbedField, EmbedOptions, Message } from "eris";
 
-export default new Command('!help', function (message: Message, _arguments: string[]): void {
+export default new Command('!도움', function (message: Message, _arguments: string[]): void {
 	if(_arguments['length'] !== 0) {
 		if(_arguments[0].startsWith(process['env']['PREFIX'])) {
 			_arguments[0] = _arguments[0].slice(process['env']['PREFIX']['length']);
@@ -20,8 +20,7 @@ export default new Command('!help', function (message: Message, _arguments: stri
 					title: 'DCBot | 도움',
 					fields: [{
 						name: '사용법',
-						value: process['env']['PREFIX'] + argumentCommand,
-						inline: true
+						value: process['env']['PREFIX'] + argumentCommand
 					}]
 				};
 	
@@ -52,16 +51,14 @@ export default new Command('!help', function (message: Message, _arguments: stri
 	
 				(helpEmbed['fields'] as EmbedField[]).push({
 					name: '설명',
-					value: currentCommand['description'],
-					inline: true
+					value: currentCommand['description'] !== 'No description' ? currentCommand['description'] : '설명 없음'
 				});
 	
 				aliases.sort();
 
 				(helpEmbed['fields'] as EmbedField[]).push({
 					name: '별칭',
-					value: '',
-					inline: true
+					value: ''
 				});
 
 				for(let i: number = 0; i < aliases['length']; i++) {
@@ -73,7 +70,7 @@ export default new Command('!help', function (message: Message, _arguments: stri
 				(helpEmbed['fields'] as EmbedField[])[2]['value'] = (helpEmbed['fields'] as EmbedField[])[2]['value'].slice(0, -1);
 
 				if((helpEmbed['fields'] as EmbedField[])[2]['value']['length'] === 0) {
-					(helpEmbed['fields'] as EmbedField[])[2]['value'] = 'No aliases';
+					(helpEmbed['fields'] as EmbedField[])[2]['value'] = '별칭 없음';
 				}
 	
 				message['channel'].createMessage({
@@ -105,6 +102,8 @@ export default new Command('!help', function (message: Message, _arguments: stri
 	
 	return;
 }, {
-	aliases: ['!도움'],
+	usage: process['env']['PREFIX'] + '<**명령어**> <**매개변수*(선택)***>',
+	description: '도움말 확인',
+	aliases: ['!help'],
 	guildOnly: true
 });

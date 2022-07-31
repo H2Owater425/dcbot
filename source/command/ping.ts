@@ -3,17 +3,18 @@ import { Command } from "@library/framework";
 import logger from "@library/logger";
 import { Message, Shard } from "eris";
 
-export default new Command('!ping', function (message: Message): void {
+export default new Command('!핑', function (message: Message): void {
 	const latency: number = (client['shards'].get(client['guildShardMap'][message['guildID'] as string]) as Shard)['latency'];
 
 	message['channel'].createMessage({
-		content: Number.isFinite(latency) ? 'pong (' + latency + 'ms)' : 'Please try again later',
+		content: Number.isFinite(latency) ? latency + 'ms' : '잠시후 다시 시도하세요',
 		messageReference: { messageID: message['id'] }
 	})
 	.catch(logger.error);
 
 	return;
 }, {
-	aliases: ['!핑'],
+	description: '핑 확인',
+	aliases: ['!ping'],
 	guildOnly: true
 });

@@ -1,7 +1,7 @@
 import { ClientRequest, IncomingMessage } from 'http';
 import { request } from 'https';
 import { RejectFunction, ResolveFunction, Response } from '@library/type';
-import { EmbedOptions } from 'eris';
+import { EmbedField, EmbedOptions } from 'eris';
 import { client } from '@application';
 
 export function isValidTitle(title: string, maximumLength: number): boolean {
@@ -93,18 +93,25 @@ export function getHelpEmbed(index: number, pageSize: number): EmbedOptions {
 		thumbnail: { url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png' },
 		title: 'DCBot | 도움',
 		description: '',
-		footer: { text: (index + 1) + '/' + Math.ceil(client['commandLabels']['length'] / pageSize) }
+		footer: { text: (index + 1) + '/' + Math.ceil(client['commandLabels']['length'] / pageSize) },
+		fields: []
 	};
 
-	const pageEndingIndex: number = pageSize * index + pageSize;
+	index *= pageSize;
 
-	for(let i: number = pageEndingIndex - pageSize; i < pageEndingIndex; i++) {
-		if(typeof(client['commands'][client['commandLabels'][i]]) === 'object' && !client['commands'][client['commandLabels'][i]]['hidden']) {
-			helpEmbed['description'] += '`' + process['env']['PREFIX'] + client['commandLabels'][i] + '`\n' + client['commands'][client['commandLabels'][i]]['description'] + '\n\n';
-		}
+	while((helpEmbed['fields'] as EmbedField[])['length'] !== pageSize && typeof(client['commands'][client['commandLabels'][index]]) === 'object') {
+		(helpEmbed['fields'] as EmbedField[]).push({
+			name: '`' + process['env']['PREFIX'] + client['commandLabels'][index] + '`',
+			value: client['commands'][client['commandLabels'][index]]['description']
+		});
+
+		index++;
 	}
 
-	helpEmbed['description'] += '*Type `' + process['env']['PREFIX'] + '!help <command>` for more information*';
+	(helpEmbed['fields'] as EmbedField[]).push({
+		name: '\u200b',
+		value: '*`' + process['env']['PREFIX'] + '!도움 ~<명령어>`를 통해 더 많은 정보를 확인하세요*'
+	});
 
 	return helpEmbed;
 }
