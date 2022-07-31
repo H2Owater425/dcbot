@@ -45,6 +45,10 @@ export default new Command('!help', function (message: Message, _arguments: stri
 						return;
 					}
 				}
+
+				if(currentCommand['usage']['length'] !== 0) {
+					(helpEmbed['fields'] as EmbedField[])[0]['value'] += ' ' + currentCommand['usage'];
+				}
 	
 				(helpEmbed['fields'] as EmbedField[]).push({
 					name: '설명',
@@ -52,22 +56,24 @@ export default new Command('!help', function (message: Message, _arguments: stri
 					inline: true
 				});
 	
-				if(aliases['length'] !== 0) {
-					aliases.sort();
-	
-					(helpEmbed['fields'] as EmbedField[]).push({
-						name: '별칭',
-						value: '',
-						inline: true
-					});
-	
-					for(let i: number = 0; i < aliases['length']; i++) {
-						if(argumentCommand !== aliases[i]) {
-							(helpEmbed['fields'] as EmbedField[])[2]['value'] += process['env']['PREFIX'] + aliases[i] + '\n';
-						}
-					}
+				aliases.sort();
 
-					(helpEmbed['fields'] as EmbedField[])[2]['value'] = (helpEmbed['fields'] as EmbedField[])[2]['value'].slice(0, -1);
+				(helpEmbed['fields'] as EmbedField[]).push({
+					name: '별칭',
+					value: '',
+					inline: true
+				});
+
+				for(let i: number = 0; i < aliases['length']; i++) {
+					if(argumentCommand !== aliases[i]) {
+						(helpEmbed['fields'] as EmbedField[])[2]['value'] += process['env']['PREFIX'] + aliases[i] + '\n';
+					}
+				}
+
+				(helpEmbed['fields'] as EmbedField[])[2]['value'] = (helpEmbed['fields'] as EmbedField[])[2]['value'].slice(0, -1);
+
+				if((helpEmbed['fields'] as EmbedField[])[2]['value']['length'] === 0) {
+					(helpEmbed['fields'] as EmbedField[])[2]['value'] = 'No aliases';
 				}
 	
 				message['channel'].createMessage({
