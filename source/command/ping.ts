@@ -6,7 +6,10 @@ import { Message, Shard } from "eris";
 export default new Command('!ping', function (message: Message): void {
 	const latency: number = (client['shards'].get(client['guildShardMap'][message['guildID'] as string]) as Shard)['latency'];
 
-	message['channel'].createMessage({ content: Number.isFinite(latency) ? 'pong (' + latency + 'ms)' : 'Please try again later' })
+	message['channel'].createMessage({
+		content: Number.isFinite(latency) ? 'pong (' + latency + 'ms)' : 'Please try again later',
+		messageReference: { messageID: message['id'] }
+	})
 	.catch(logger.error);
 
 	return;

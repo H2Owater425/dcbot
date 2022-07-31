@@ -6,8 +6,8 @@ import { HotPost, Setting } from '@prisma/client';
 import { Message, PartialEmoji, PossiblyUncachedMessage } from 'eris';
 import { client } from '@application';
 
-export default new Event('messageReactionRemove', function (message: PossiblyUncachedMessage, emoji: PartialEmoji): void {
-	if(typeof(message['guildID']) === 'string' && emoji['name'] === '⭐') {
+export default new Event('messageReactionRemove', function (message: PossiblyUncachedMessage, reaction: PartialEmoji): void {
+	if(typeof(message['guildID']) === 'string' && reaction['name'] === '⭐') {
 		prisma['hotPost'].findFirst({
 			select: { messageId: true },
 			where: { originalMessageId: message['id'] }

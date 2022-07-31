@@ -12,7 +12,7 @@ import { Setting } from '@prisma/client';
 export default new Event('messageCreate', function (message: Message<PossiblyUncachedTextableChannel>): void {
 	const emoticonArguments: string[] = message['content'].slice(1).split(' ');
 
-	if(message['content'].charCodeAt(0) === process['env']['PREFIX'].charCodeAt(0) && !client['commandNames'].has(emoticonArguments[0])) {
+	if(message['content'].charCodeAt(0) === process['env']['PREFIX'].charCodeAt(0) && !client['commandLabelAndAliases'].has(emoticonArguments[0])) {
 		const emoticonEmbed: EmbedOptions = {
 			color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
 			image: {},
@@ -35,9 +35,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 			
 							client.createMessage(message['channel']['id'], {
 								embed: emoticonEmbed,
-								messageReference: {
-									messageID: message['id']
-								}
+								messageReference: { messageID: message['id'] }
 							})
 							.catch(logger.error);
 						} else if(/^(\p{Emoji}|\uFE0F|\u200d)+$/u.test(emoticonArguments[0])) {
@@ -46,9 +44,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 			
 								client.createMessage(message['channel']['id'], {
 									embed: emoticonEmbed,
-									messageReference: {
-										messageID: message['id']
-									}
+									messageReference: { messageID: message['id'] }
 								})
 								.catch(logger.error);
 							} catch(error: any) {
@@ -116,7 +112,6 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 												}
 											}
 			
-			
 											if(emoticonIndex !== -1) {
 												fetchResponse('https://dcimg5.dcinside.com/dccon.php?no=' + responseJson['detail'][emoticonIndex]['path'])
 												.then(function (response: Response): void {
@@ -126,9 +121,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 			
 													client.createMessage(message['channel']['id'], {
 														embed: emoticonEmbed,
-														messageReference: {
-															messageID: message['id']
-														}
+														messageReference: { messageID: message['id'] }
 													}, [{
 														file: response['buffer'],
 														name: fileName
@@ -164,7 +157,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 							return;
 						}))
 						.catch(function (error: any): void {
-							if(error instanceof Error) {
+							if(typeof(error) === 'object') {
 								logger.error(error['message']);
 							}
 			
@@ -202,14 +195,12 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 											(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'https:' + getStringBetween(splitResponseTexts[emoticonImageIndex], { ending: '"' });
 			
 											if(((emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] as string).endsWith('mp4')) {
-												(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] += '.gif';
+												(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = ((emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] as string).slice(0, -3) + 'gif';
 											}
 			
 											client.createMessage(message['channel']['id'], {
 												embed: emoticonEmbed,
-												messageReference: {
-													messageID: message['id']
-												}
+												messageReference: { messageID: message['id'] }
 											})
 											.catch(logger.error);
 										}

@@ -1,6 +1,8 @@
 import { ClientRequest, IncomingMessage } from 'http';
 import { request } from 'https';
 import { RejectFunction, ResolveFunction, Response } from '@library/type';
+import { EmbedOptions } from 'eris';
+import { client } from '@application';
 
 export function isValidTitle(title: string, maximumLength: number): boolean {
 	if(title['length'] <= maximumLength) {
@@ -83,4 +85,26 @@ export function getStringBetween(target: string, options: {
 	const endingIndex: number = typeof(options['ending']) === 'string' ? target.indexOf(options['ending']) : target['length'] - 1;
 
 	return target.slice(startingIndex !== -1 ? startingIndex : 0, endingIndex !== -1 ? endingIndex : target['length'] - 1);
+}
+
+export function getHelpEmbed(index: number, pageSize: number): EmbedOptions {
+	const helpEmbed: EmbedOptions = {
+		color: Number.parseInt(process['env']['EMBED_COLOR'], 16),
+		thumbnail: { url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png' },
+		title: 'DCBot | 도움',
+		description: '',
+		footer: { text: (index + 1) + '/' + Math.ceil(client['commandLabels']['length'] / pageSize) }
+	};
+
+	const pageEndingIndex: number = pageSize * index + pageSize;
+
+	for(let i: number = pageEndingIndex - pageSize; i < pageEndingIndex; i++) {
+		if(typeof(client['commands'][client['commandLabels'][i]]) === 'object' && !client['commands'][client['commandLabels'][i]]['hidden']) {
+			helpEmbed['description'] += '`' + process['env']['PREFIX'] + client['commandLabels'][i] + client['commands'][client['commandLabels'][i]]['usage'] + '`\n' + client['commands'][client['commandLabels'][i]]['description'] + '\n\n';
+		}
+	}
+
+	helpEmbed['description'] += '*Type `' + process['env']['PREFIX'] + '!help <command>` for more information*';
+
+	return helpEmbed;
 }

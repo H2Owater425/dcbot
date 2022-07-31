@@ -8,3 +8,5 @@ export const enum SettingIndexes {
 };
 
 export const SettingNames = ['isEmoticonEnabled', 'emoticonBannedChannelIds', 'isHotPostEnabled', 'hotPostCriteriaCount', 'hotPostChannelId', 'hotPostBannedChannelIds'] as const;
+
+export const pageSize: number = 3 as const;

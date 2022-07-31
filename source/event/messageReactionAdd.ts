@@ -2,16 +2,17 @@ import { prisma } from '@library/database';
 import { Event } from '@library/framework';
 import logger from '@library/logger';
 import { HotPost, Setting } from '@prisma/client';
-import { EmbedField, EmbedOptions, Message, PartialEmoji, PossiblyUncachedMessage, User } from 'eris';
+import { EmbedField, EmbedOptions, Message, PartialEmoji, PossiblyUncachedMessage, Uncached, User } from 'eris';
 import { client } from '@application';
-import { SettingIndexes } from '@library/constant';
+import { pageSize, SettingIndexes } from '@library/constant';
+import { getHelpEmbed, getStringBetween } from '@library/utility';
 
-export default new Event('messageReactionAdd', function (message: PossiblyUncachedMessage, emoji: PartialEmoji): void {
-	if(typeof(message['guildID']) === 'string') {
-		switch(emoji['name']) {
-			case '⭐': {
-				client.getMessage(message['channel']['id'], message['id'])
-				.then(function (message: Message): void {
+export default new Event('messageReactionAdd', function (message: PossiblyUncachedMessage, reaction: PartialEmoji, reactor: User | Uncached): void {
+	if(typeof(message['guildID']) === 'string' && reactor['id'] !== client['user']['id']) {
+		client.getMessage(message['channel']['id'], message['id'])
+		.then(function (message: Message): void {
+			switch(reaction['name']) {
+				case '⭐': {
 					if(!message['author']['bot']) {
 						prisma['setting'].findMany({
 							select: { value: true },
@@ -33,7 +34,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 										})
 										.then(function (hotPost: Pick<HotPost, 'messageId'> | null): void {
 											const hotPostContent: string = '🌟 **' + message['reactions']['⭐']['count'] + '** <#' + message['channel']['id'] + '>';
-
+	
 											if(hotPost !== null) {
 												prisma['hotPost'].update({
 													select: null,
@@ -43,7 +44,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 												.then(function (): void {
 													client.editMessage(settings[2]['value']/* hotPostChannelId */, hotPost['messageId'], { content: hotPostContent })
 													.catch(logger.error);
-
+	
 													return;
 												})
 												.catch(logger.error);
@@ -63,31 +64,31 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													footer: { text: message['id'] },
 													timestamp: new Date(message['createdAt'])
 												};
-
+	
 												if(message['attachments']['length'] !== 0) {
 													let fileList: string = '';
 													let i: number = 0;
-
+	
 													if(typeof(message['attachments'][i]['filename']) === 'string' && /^(jp|pn)g|gifv?$/i.test(message['attachments'][i]['filename'].split('.').pop() as string)) {
 														hotPostEmbed['image'] = message['attachments'][i];
-
+	
 														i++;
 													}
-
+	
 													for(; i < message['attachments']['length']; i++) {
 														const splitAttachementFilenames: string[] = message['attachments'][i]['filename'].split('.');
 														const [attachmentExtension, attachmentName]: string[] = [splitAttachementFilenames['length'] !== 1 ? '.' + splitAttachementFilenames.pop() : '', splitAttachementFilenames.join('.')];
 														const element: string = '[' + (attachmentName['length'] + attachmentExtension['length'] <= 15 ? attachmentName + attachmentExtension : attachmentName.slice(0, 14 - attachmentExtension['length'] - 7) + '...' + attachmentName.slice(-4) + attachmentExtension) + '](' + message['attachments'][i]['url'] + ')\n';
-
+	
 														if(fileList['length'] + element['length'] <= 1018) {
 															fileList += element;
 														} else {
 															fileList += '*더...*';
-
+	
 															break;
 														}
 													}
-
+	
 													if(fileList['length'] !== 0) {
 														(hotPostEmbed['fields'] as EmbedField[]).push({
 															name: '첨부파일',
@@ -96,7 +97,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 														});
 													}
 												}
-
+	
 												client.createMessage(settings[2]['value']/* hotPostChannelId */, {
 													content: hotPostContent,
 													embed: hotPostEmbed
@@ -114,17 +115,17 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													.catch(function (error: any): void {
 														hotPostMessage.delete()
 														.catch(logger.error);
-
+	
 														logger.error(error);
-
+	
 														return;
 													});
-
+	
 													return;
 												})
 												.catch(logger.error);
 											}
-
+	
 											return;
 										})
 										.catch(logger.error);
@@ -133,51 +134,50 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 									logger.error('Invalid setting (' + message['guildID'] + ')');
 								}
 							}
-
+	
 							return;
 						})
 						.catch(logger.error);
 					}
-
-					return;
-				})
-				.catch(logger.error);
-
-				break;
-			}
-
-			case '❌': {
-				client.getMessage(message['channel']['id'], message['id'])
-				.then(function (message: Message): void {
-					if(message['author']['id'] === client['user']['id'] && typeof(message['referencedMessage']) !== 'undefined' && message['referencedMessage'] !== null) {
-						message.getReaction('❌').then(function (users: User[]): void {
-							let isSameUser: boolean = false;
-
-							for(let i: number = 0; i < users['length']; i++) {
-								if(users[i]['id'] === (message['referencedMessage'] as Message)['author']['id']) {
-									isSameUser = true;
-
-									break;
+	
+					break;
+				}
+	
+				case '❌': {
+					if(message['author']['id'] === client['user']['id'] && typeof(message['referencedMessage']) === 'object' && message['referencedMessage'] !== null && message['referencedMessage']['author']['id'] === reactor['id']) {
+						message.delete()
+						.catch(logger.error);
+					}
+	
+					break;
+				}
+	
+				case '◀':
+				case '▶': {
+					if(message['author']['id'] === client['user']['id']) {
+						message.removeReaction(reaction['name'], reactor['id'])
+						.then(function (): void {
+							if(message['embeds']['length'] === 1 && message['embeds'][0]['title'] === 'DCBot | 도움') {
+								const nextPageIndex: number = Number.parseInt(getStringBetween((message['embeds'][0] as Required<typeof message['embeds'][0]>)['footer']['text'], { ending: '/' }), 10) + (reaction['name'] === '▶' ? 1 : -1);
+							
+								if(!Number.isNaN(nextPageIndex) && nextPageIndex !== 0 && nextPageIndex <= Math.ceil(client['commandLabels']['length'] / pageSize)) {
+									message.edit({ embed: getHelpEmbed(nextPageIndex - 1, pageSize) })
+									.catch(logger.error);
 								}
 							}
-
-							if(isSameUser) {
-								message.delete()
-								.catch(logger.error);
-							}
-
+		
 							return;
 						})
 						.catch(logger.error);
 					}
-
-					return;
-				})
-				.catch(logger.error);
-
-				break;
+	
+					break;
+				}
 			}
-		}
+
+			return;
+		})
+		.catch(logger.error);
 	}
 
 	return;

@@ -23,7 +23,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 	
 				switch(settings[i]['key']) {
 					case SettingIndexes['hotPostChannelId']: {
-						settingList += settings[i]['value'] !== '' ? '<#' + settings[i]['value'] + '>' : '**null**';
+						settingList += settings[i]['value']['length'] !== 0 ? '<#' + settings[i]['value'] + '>' : '**null**';
 	
 						break;
 					}
@@ -32,7 +32,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 					case SettingIndexes['hotPostBannedChannelIds']: {
 						settingList += '**['
 	
-						if(settings[i]['value'] !== '') {
+						if(settings[i]['value']['length'] !== 0) {
 							settingList += '<#' + settings[i]['value'].split(',').join('>, <#') + '>'
 						}
 	
@@ -95,14 +95,14 @@ export default new Command('!setting', function (message: Message, _arguments: s
 				}
 	
 				switch(_arguments[1]) {
-					case '1':
+					case '참':
 					case 'true': {
 						setting['value'] = '1';
 	
 						break;
 					}
 	
-					case '0':
+					case '거짓':
 					case 'false': {
 						setting['value'] = '0';
 	
@@ -118,10 +118,10 @@ export default new Command('!setting', function (message: Message, _arguments: s
 	
 				const firstArgumantMatch: RegExpMatchArray | null = _arguments[1].match(/^<#[0-9]+>$/);
 	
-				if(firstArgumantMatch !== null && firstArgumantMatch['length'] === 1) {
+				if(Array.isArray(firstArgumantMatch) && firstArgumantMatch['length'] === 1) {
 					const channelId: string = firstArgumantMatch[0].slice(2, -1);
 					
-					if(typeof(client.getChannel(channelId)) !== 'undefined') {
+					if(typeof(client.getChannel(channelId)) === 'object') {
 						setting['value'] = channelId;
 					}
 				}
@@ -134,7 +134,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 	
 				const firstArgumantMatch: RegExpMatchArray | null = _arguments[1].match(/^[1-9][0-9]*$/);
 	
-				if(firstArgumantMatch !== null && firstArgumantMatch['length'] === 1) {
+				if(Array.isArray(firstArgumantMatch) && firstArgumantMatch['length'] === 1) {
 					setting['value'] = _arguments[1];
 				}
 	
@@ -148,7 +148,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 			}
 		}
 	
-		if(setting['value'] !== '') {
+		if(setting['value']['length'] !== 0) {
 			prisma['setting'].update({
 				select: null,
 				where: { guildId_key: {
@@ -183,7 +183,8 @@ export default new Command('!setting', function (message: Message, _arguments: s
 							url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
 						},
 						description: _arguments[0] + '이 ' + setting['value'] + '(으)로 변경됨'
-					}
+					},
+					messageReference: { messageID: message['id'] }
 				})
 				.catch(logger.error);
 	
@@ -222,10 +223,10 @@ export default new Command('!setting', function (message: Message, _arguments: s
 
 				const firstArgumantMatch: RegExpMatchArray | null = _arguments[1].match(/^<#[0-9]+>$/);
 
-				if(firstArgumantMatch !== null && firstArgumantMatch['length'] === 1) {
+				if(Array.isArray(firstArgumantMatch) && firstArgumantMatch['length'] === 1) {
 					const channelId: string = firstArgumantMatch[0].slice(2, -1);
 					
-					if(typeof(client.getChannel(channelId)) !== 'undefined') {
+					if(typeof(client.getChannel(channelId)) === 'object') {
 						setting['value'] = channelId;
 					}
 				}
@@ -240,7 +241,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 			}
 		}
 
-		if(setting['value'] !== '') {
+		if(setting['value']['length'] !== 0) {
 			prisma['setting'].findFirst({
 				select: { value: true },
 				where: {
@@ -250,7 +251,7 @@ export default new Command('!setting', function (message: Message, _arguments: s
 			})
 			.then(function (_setting: Pick<Setting, 'value'> | null): void {
 				if(_setting !== null) {
-					const channelIds: Set<string> = new Set<string>(_setting['value'] !== '' ? _setting['value'].split(',') : undefined);
+					const channelIds: Set<string> = new Set<string>(_setting['value']['length'] !== 0 ? _setting['value'].split(',') : undefined);
 
 					channelIds[plainCommand.endsWith('add') || plainCommand.endsWith('추가') ? 'add' : 'delete'](setting['value']);
 
@@ -271,7 +272,8 @@ export default new Command('!setting', function (message: Message, _arguments: s
 									url: 'https://cdn.h2owr.xyz/images/dcbot/logo.png'
 								},
 								description: _arguments[0] + '이 **[' + (channelIds['size'] !== 0 ? '<#' + Array.from(channelIds).join('>, <#') + '>' : '') + ']**(으)로 변경됨'
-							}
+							},
+							messageReference: { messageID: message['id'] }
 						})
 						.catch(logger.error);
 

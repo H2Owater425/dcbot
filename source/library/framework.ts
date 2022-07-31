@@ -59,31 +59,29 @@ export class Command {
 }
 
 export class Client extends CommandClient {
-	private _commandNames: Set<string> = new Set<string>();
-	private currentFileExtension: string = __filename.slice(-3);
+	private fileExtension: string = __filename.slice(-3);
+	public commandLabelAndAliases: Set<string> = new Set<string>();
+	public commandLabels: string[] = [];
 
 	constructor(token: string, options: ClientOptions & CommandClientOptions) {
 		super(token, options, options);
 	}
 
-	public get commandNames(): Client['_commandNames'] {
-		return new Set<string>(this['_commandNames']);
-	} 
-
 	public loadCommand(path: string): void {
 		const commandPaths: string[] = getPaths(path);
 
 		for(let i: number = 0; i < commandPaths['length']; i++) {
-			if(commandPaths[i].endsWith(this['currentFileExtension'])) {
+			if(commandPaths[i].endsWith(this['fileExtension'])) {
 				const command: Command = require(commandPaths[i])['default'];
 
 				command.registerSubcommand(this.registerCommand(command['label'], command['generator'], command['options']));
 
-				this['_commandNames'].add(command['label']);
-
+				this['commandLabels'].push(command['label']);
+				this['commandLabelAndAliases'].add(command['label']);
+				
 				if(Array.isArray(command['options']['aliases'])) {
 					for(let j: number = 0; j < command['options']['aliases']['length']; j++) {
-						this['_commandNames'].add(command['options']['aliases'][j]);
+						this['commandLabelAndAliases'].add(command['options']['aliases'][j]);
 					}
 				}
 			}
@@ -96,7 +94,7 @@ export class Client extends CommandClient {
 		const eventPaths: string[] = getPaths(path);
 
 		for(let i: number = 0; i < eventPaths['length']; i++) {
-			if(eventPaths[i].endsWith(this['currentFileExtension'])) {
+			if(eventPaths[i].endsWith(this['fileExtension'])) {
 				const event: Event<keyof ClientEvents> = require(eventPaths[i])['default'];
 
 				this.on(event['name'], event['handler']);
