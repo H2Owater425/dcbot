@@ -20,7 +20,7 @@ export default new Command('!도움', function (message: Message, _arguments: st
 					title: 'DCBot | 도움',
 					fields: [{
 						name: '사용법',
-						value: process['env']['PREFIX'] + argumentCommand
+						value: '**`' + process['env']['PREFIX'] + argumentCommand + '`**'
 					}]
 				};
 	
