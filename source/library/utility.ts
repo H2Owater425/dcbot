@@ -100,7 +100,7 @@ export function getHelpEmbed(index: number, pageSize: number): EmbedOptions {
 
 	for(let i: number = pageEndingIndex - pageSize; i < pageEndingIndex; i++) {
 		if(typeof(client['commands'][client['commandLabels'][i]]) === 'object' && !client['commands'][client['commandLabels'][i]]['hidden']) {
-			helpEmbed['description'] += '`' + process['env']['PREFIX'] + client['commandLabels'][i] + client['commands'][client['commandLabels'][i]]['usage'] + '`\n' + client['commands'][client['commandLabels'][i]]['description'] + '\n\n';
+			helpEmbed['description'] += '`' + process['env']['PREFIX'] + client['commandLabels'][i] + '`\n' + client['commands'][client['commandLabels'][i]]['description'] + '\n\n';
 		}
 	}
 
