@@ -57,15 +57,17 @@ export default new Command('!help', function (message: Message, _arguments: stri
 	
 					(helpEmbed['fields'] as EmbedField[]).push({
 						name: '별칭',
-						value: process['env']['PREFIX'] + aliases[0],
+						value: '',
 						inline: true
 					});
 	
-					for(let i: number = 1; i < aliases['length']; i++) {
+					for(let i: number = 0; i < aliases['length']; i++) {
 						if(argumentCommand !== aliases[i]) {
-							(helpEmbed['fields'] as EmbedField[])[2]['value'] += '\n' + process['env']['PREFIX'] + aliases[i];
+							(helpEmbed['fields'] as EmbedField[])[2]['value'] += process['env']['PREFIX'] + aliases[i] + '\n';
 						}
 					}
+
+					(helpEmbed['fields'] as EmbedField[])[2]['value'] = (helpEmbed['fields'] as EmbedField[])[2]['value'].slice(0, -1);
 				}
 	
 				message['channel'].createMessage({
