@@ -74,7 +74,7 @@ export default new Command('!설정', function (message: Message, _arguments: st
 
 	return;
 }, {
-	usage: '<**수정**|**set**|**추가**|**add**|**제거**|**remove**>',
+	usage: '**`수정|set|추가|add|제거|remove`**',
 	description: '설정 확인',
 	aliases: ['!setting'],
 	guildOnly: true,
@@ -200,8 +200,8 @@ export default new Command('!설정', function (message: Message, _arguments: st
 
 	return;
 }, {
-	usage: '<**isEmoticonEnabled**|**isHotPostEnabled**|**hotPostCriteriaCount**|**hotPostChannelId**> <**참**|**true**|**거짓**|**false**|***숫자***>',
-	description: '단일 값 설정 변경',
+	usage: '**`isEmoticonEnabled|isHotPostEnabled|hotPostCriteriaCount|hotPostChannelId`** **`참|true|거짓|false|(숫자)|#채널_이름`**',
+	description: '단일 값 설정 변경\n**isEmoticonEnabled** - `이모티콘 사용 여부`\n**isHotPostEnabled** - `개념글 사용 여부`\n**hotPostCriteriaCount** - `개념글 추천 기준`\n**hotPostChannelId** - `개념글 게시 채널`',
 	aliases: ['set'],
 	guildOnly: true,
 	requirements: { permissions: { administrator: true } }
@@ -296,8 +296,8 @@ export default new Command('!설정', function (message: Message, _arguments: st
 
 	return;
 }, {
-	usage: '#<**체널_이름**>',
-	description: '복수 값 설정 추가 및 제거',
+	usage: '**`emoticonBannedChannelIds|hotPostBannedChannelIds`** **`#채널_이름`**',
+	description: '복수 값 설정 추가 및 제거\n**emoticonBannedChannelIds** - `이모티콘 제외 채널`\n**hotPostBannedChannelIds** - `개념글 제외 채널`',
 	aliases: ['add', '제거', 'remove'],
 	guildOnly: true,
 	requirements: { permissions: { administrator: true } }

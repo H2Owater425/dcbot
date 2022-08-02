@@ -102,7 +102,7 @@ export default new Command('!도움', function (message: Message, _arguments: st
 	
 	return;
 }, {
-	usage: process['env']['PREFIX'] + '<**명령어**> <**매개변수*(선택)***>',
+	usage: process['env']['PREFIX'] + '**`명령어`** **`매개변수(선택)`**',
 	description: '도움말 확인',
 	aliases: ['!help'],
 	guildOnly: true
