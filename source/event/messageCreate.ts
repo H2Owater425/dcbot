@@ -195,7 +195,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 											(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = 'https:' + getStringBetween(splitResponseTexts[emoticonImageIndex], { ending: '"' });
 			
 											if(((emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] as string).endsWith('mp4')) {
-												(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] += '.gif';
+												(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = ((emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] as string).slice(0, -3) + 'gif';
 											}
 			
 											client.createMessage(message['channel']['id'], {
