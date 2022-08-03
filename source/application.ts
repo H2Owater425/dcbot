@@ -12,7 +12,11 @@ export const client: Client = new Client(process['env']['TOKEN'], Object.assign(
 
 client.loadCommand(join(__dirname, 'command'));
 
+client.printCommandTree();
+
 client.loadEvent(join(__dirname, 'event'));
+
+//client.printEventTree();
 
 client.connect();
 

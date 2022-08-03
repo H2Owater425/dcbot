@@ -2,6 +2,7 @@ import { ClientEvents, ClientOptions, Command as _Command, CommandClient, Comman
 import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { EventHandler } from '@library/type';
+import logger from './logger';
 
 function getPaths(path: string, paths: string[] = []): string[] {
 	const _paths: string[] = readdirSync(path, 'utf8');
@@ -51,7 +52,11 @@ export class Command {
 
 	public registerSubcommand(command: _Command): void {
 		for(let i: number = 0; i < this['subcommands']['length']; i++) {
-			command.registerSubcommand(this['subcommands'][i]['label'], this['subcommands'][i]['generator'], this['subcommands'][i]['options']);
+			const subcommand: _Command = command.registerSubcommand(this['subcommands'][i]['label'], this['subcommands'][i]['generator'], this['subcommands'][i]['options']);
+
+			if(this['subcommands'][i]['subcommands']['length'] !== 0) {
+				this['subcommands'][i].registerSubcommand(subcommand);
+			}
 		}
 
 		return;
@@ -102,5 +107,61 @@ export class Client extends CommandClient {
 		}
 
 		return;
+	}
+
+	private getCommandTreePrintouts(commands: _Command[] = Object.values(this['commands']), depth: number = 1, isLastBranch: boolean = false): string[] {
+		let printouts: string[] = [];
+		
+		for(let i: number = 0; i < commands['length']; i++) {
+			const isLastElement: boolean = i + 1 === commands['length'];
+
+			let printout: string = '';
+			
+			if(depth !== 0) {
+				for(let j: number = 1 + (isLastBranch ? 1 : 0); j < depth; j++) {
+					printout += '│   ';
+				}
+
+				if(isLastBranch) {
+					printout += '    ';
+				}
+
+				printout += (!isLastElement ? '├' : '└') + '── ';
+			}
+
+			printout += commands[i]['label'] + (commands[i]['aliases']['length'] !== 0 ? ' (' + commands[i]['aliases'].join(', ') + ')' : '');
+
+			printouts.push(printout);
+
+			if(Object.keys(commands[i]['subcommands'])['length'] !== 0) {
+				printouts = printouts.concat.apply(printouts, this.getCommandTreePrintouts(Object.values(commands[i]['subcommands']), depth + 1, isLastElement));
+			}
+		}
+
+		return printouts;
+	}
+
+	public printCommandTree(): void {
+		const commandPrintouts: string[] = this.getCommandTreePrintouts();
+		
+		logger.info(process['env']['PREFIX'] + ' [PREFIX]');
+
+		for(let i: number = 0; i < commandPrintouts['length']; i++) {
+			logger.info(commandPrintouts[i]);
+		}
+
+		return;
+	}
+
+	public printEventTree(): void {
+		const eventNames: (string | Symbol)[] = this.eventNames();
+
+		logger.info('Connect')
+
+		for(let i: number = 0; i < eventNames['length']; i++) {
+			if(typeof(eventNames[i]) === 'string') {
+				logger.info((i + 1 !== eventNames['length'] ? '├' : '└') + '── ' + eventNames[i]);
+			}
+		}
 	}
 }
