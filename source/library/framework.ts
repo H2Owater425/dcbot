@@ -117,19 +117,19 @@ export class Client extends CommandClient {
 
 			let printout: string = '';
 			
-			if(depth !== 0) {
-				for(let j: number = 1 + (isLastBranch ? 1 : 0); j < depth; j++) {
-					printout += '│   ';
-				}
-
-				if(isLastBranch) {
-					printout += '    ';
-				}
-
-				printout += (!isLastElement ? '├' : '└') + '── ';
+			for(let j: number = 1 + (isLastBranch ? 1 : 0); j < depth; j++) {
+				printout += '│   ';
 			}
 
-			printout += commands[i]['label'] + (commands[i]['aliases']['length'] !== 0 ? ' (' + commands[i]['aliases'].join(', ') + ')' : '');
+			if(isLastBranch) {
+				printout += '    ';
+			}
+
+			printout += (!isLastElement ? '├' : '└') + '── ' + commands[i]['label'];
+
+			if(commands[i]['aliases']['length'] !== 0) {
+				printout += ' (' + commands[i]['aliases'].join(', ') + ')';
+			}
 
 			printouts.push(printout);
 
