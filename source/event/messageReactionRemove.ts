@@ -39,7 +39,7 @@ export default new Event('messageReactionRemove', function (message: PossiblyUnc
 									})
 									.catch(logger.error);
 								} else {
-									client.editMessage(settings[1]['value'], hotPost['messageId'], { content: '🌟 **' + message['reactions']['⭐']['count'] + '** <#' + message['channel']['id'] + '>' })
+									client.editMessage(settings[2]['value']/* hotPostChannelId */, hotPost['messageId'], { content: '🌟 **' + message['reactions']['⭐']['count'] + '** <#' + message['channel']['id'] + '>' })
 									.catch(logger.error);
 								}
 
