@@ -9,7 +9,7 @@ export class Logger {
 			}
 		}
 
-		let print: Socket['write'];
+		let print: Socket['write'] = process.stdout.write.bind(process.stdout);
 		let levelColor: number = 32;
 
 		switch(level) {
@@ -23,10 +23,6 @@ export class Logger {
 
 			case 'warn': {
 				levelColor++;
-			}
-
-			default: {
-				print = process.stdout.write.bind(process.stdout);
 			}
 		}
 
