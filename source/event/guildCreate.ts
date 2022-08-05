@@ -59,6 +59,7 @@ export default new Event('guildCreate', function (guild: Guild): void {
 
 			return;
 		})
+		.catch(logger.error);
 
 		return;
 	})
