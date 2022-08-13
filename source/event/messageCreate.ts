@@ -40,7 +40,7 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 							.catch(logger.error);
 						} else if(/^(\p{Emoji}|\uFE0F|\u200d)+$/u.test(emoticonArguments[0])) {
 							try {
-								(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = parse(emoticonArguments[0], { buildUrl: function (codepoints: string): string { return 'https://cdn.h2owr.xyz/images/twemoji/png/512x512/' + codepoints + '.png' } })[0]['url'];
+								(emoticonEmbed as Required<typeof emoticonEmbed>)['image']['url'] = parse(emoticonArguments[0], { buildUrl: function (codepoints: string): string { return 'https://cdn.h2owr.xyz/images/twemoji/png/256x256/' + codepoints + '.png' } })[0]['url'];
 			
 								client.createMessage(message['channel']['id'], {
 									embed: emoticonEmbed,
