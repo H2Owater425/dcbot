@@ -5,6 +5,7 @@
   "author": "H2Owater425 <h2o@h2owr.xyz>",
   "license": "MIT",
   "scripts": {
+		"postinstall": "prisma generate",
     "build": "tsc -p tsconfig.json",
     "start": "node -r tsconfig-paths/register distribution/application.js",
     "dev": "ts-node-dev --rs -r tsconfig-paths/register source/application.ts",
