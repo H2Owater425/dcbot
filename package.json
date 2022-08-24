@@ -5,7 +5,7 @@
   "author": "H2Owater425 <h2o@h2owr.xyz>",
   "license": "MIT",
   "scripts": {
-		"postinstall": "prisma generate",
+    "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.json",
     "start": "node -r tsconfig-paths/register distribution/application.js",
     "dev": "ts-node-dev --rs -r tsconfig-paths/register source/application.ts",
@@ -18,13 +18,12 @@
     "bufferutil": "^4.0.6",
     "dotenv": "^16.0.1",
     "eris": "^0.17.1",
-    "mysql2": "^2.3.3",
+    "mariadb": "^3.0.1",
     "pako": "^2.0.4",
     "tsconfig-paths": "^4.1.0",
     "twemoji-parser": "^14.0.0"
   },
   "devDependencies": {
-    "@types/ioredis": "^4.28.10",
     "@types/node": "^18.7.8",
     "@types/twemoji-parser": "^13.1.1",
     "prisma": "^4.2.1",
