@@ -6,12 +6,12 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "prisma generate",
-    "build": "tsc -p tsconfig.json",
-    "start": "node -r tsconfig-paths/register distribution/application.js",
-    "dev": "ts-node-dev --rs -r tsconfig-paths/register source/application.ts",
+    "build": "tsc --project tsconfig.json",
+    "start": "node --require=tsconfig-paths/register distribution/application.js",
+    "dev": "ts-node-dev --rs --require=tsconfig-paths/register source/application.ts",
     "prisma": "prisma",
-    "docker:build": "docker build -t dcbot .",
-    "docker:run": "docker run -d --env-file ./.env -p 3000:80 --name dcbot dcbot"
+    "docker:build": "docker build --tag dcbot .",
+    "docker:run": "docker run --detach --env-file ./.env --publish 3000:80 --name dcbot dcbot"
   },
   "dependencies": {
     "@prisma/client": "^4.2.1",
