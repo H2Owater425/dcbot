@@ -2,7 +2,7 @@ import { Event } from '@library/framework';
 import { EmbedOptions, Message, PossiblyUncachedTextableChannel } from 'eris';
 import { client } from '@application';
 import logger from '@library/logger';
-import { fetchResponse, getStringBetween, isValidTitle } from '@library/utility';
+import { fetchResponse, getStringBetween, isValidTitle, unescape } from '@library/utility';
 import { RejectFunction, ResolveFunction, Response } from '@library/type';
 import { parse } from 'twemoji-parser';
 import { prisma } from '@library/database';
@@ -171,10 +171,10 @@ export default new Event('messageCreate', function (message: Message<PossiblyUnc
 								let emoticonId: number = NaN;
 			
 								for(let i: number = 0; i < splitResponseTexts['length']; i++) {
-									if(emoticonTitle === getStringBetween(splitResponseTexts[i], {
+									if(emoticonTitle === unescape(getStringBetween(splitResponseTexts[i], {
 										starting: '<div class="title">',
 										ending: '</div>'
-									})) {
+									}))) {
 										emoticonId = Number.parseInt(getStringBetween(splitResponseTexts[i], { ending: '?' }), 10);
 			
 										break;

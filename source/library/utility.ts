@@ -115,3 +115,7 @@ export function getHelpEmbed(index: number, pageSize: number): EmbedOptions {
 
 	return helpEmbed;
 }
+
+export function unescape(string: string): string {
+	return string.replace('&lt;', '<').replace('&gt;','>').replace('&nbsp;',' ').replace('&amp;', '&').replace('&quot;', '"');
+}
