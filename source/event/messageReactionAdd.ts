@@ -69,7 +69,7 @@ export default new Event('messageReactionAdd', function (message: PossiblyUncach
 													let fileList: string = '';
 													let i: number = 0;
 	
-													if(typeof(message['attachments'][i]['filename']) === 'string' && /^(jp|pn)g|gifv?$/i.test(message['attachments'][i]['filename'].split('.').pop() as string)) {
+													if(typeof(message['attachments'][i]['filename']) === 'string' && !message['attachments'][i]['filename'].startsWith('SPOILER_') && /^(jp|pn)g|gifv?$/i.test(message['attachments'][i]['filename'].split('.').pop() as string)) {
 														hotPostEmbed['image'] = message['attachments'][i];
 	
 														i++;
