@@ -2,7 +2,7 @@
   "name": "dcbot",
   "version": "1.0.0",
   "main": "distribution/application.js",
-  "author": "H2Owater425 <h2o@h2owr.xyz>",
+  "author": "H2Owater425 <h2o@dhmo.kr>",
   "license": "MIT",
   "scripts": {
     "postinstall": "prisma generate",
